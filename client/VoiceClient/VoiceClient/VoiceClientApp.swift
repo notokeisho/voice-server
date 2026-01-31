@@ -50,6 +50,9 @@ class AppCoordinator: ObservableObject {
     private weak var authService: AuthService?
     private weak var hotkeyManager: HotkeyManager?
 
+    /// Recording overlay window for visual feedback.
+    private let recordingOverlay = RecordingOverlayWindow.shared
+
     private var isSetup = false
 
     private init() {}
@@ -62,6 +65,9 @@ class AppCoordinator: ObservableObject {
         self.appState = appState
         self.authService = authService
         self.hotkeyManager = hotkeyManager
+
+        // Set up recording overlay with app state
+        recordingOverlay.setup(appState: appState)
 
         setupHotkeyCallbacks()
         startHotkeyMonitoring()
@@ -106,13 +112,19 @@ class AppCoordinator: ObservableObject {
 
         guard appState.status == .idle else { return }
 
-        appState.startRecording()
+        if appState.startRecording() {
+            // Show recording overlay on successful start
+            recordingOverlay.showWithAnimation()
+        }
     }
 
     private func handleHotkeyUp() {
         guard let appState = appState else { return }
 
         guard appState.status == .recording else { return }
+
+        // Hide recording overlay
+        recordingOverlay.hideWithAnimation()
 
         let audioURL = appState.stopRecording()
 
