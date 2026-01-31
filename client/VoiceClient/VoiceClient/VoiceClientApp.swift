@@ -116,7 +116,6 @@ class AppCoordinator: ObservableObject {
 
         let audioURL = appState.stopRecording()
 
-        // TODO: Send audio to server for transcription (Task 4.7)
         if let url = audioURL {
             processRecording(url: url)
         }
