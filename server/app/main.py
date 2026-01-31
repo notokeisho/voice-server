@@ -3,6 +3,7 @@
 from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
 
+from app.api.protected import router as api_router
 from app.auth.routes import router as auth_router
 from app.config import settings
 
@@ -16,6 +17,7 @@ app.add_middleware(SessionMiddleware, secret_key=settings.jwt_secret)
 
 # Include routers
 app.include_router(auth_router)
+app.include_router(api_router)
 
 
 @app.get("/")

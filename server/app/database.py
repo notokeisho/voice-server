@@ -5,13 +5,16 @@ from contextlib import asynccontextmanager
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.pool import NullPool
 
 from app.config import settings
 
-# Create async engine
+# Create async engine with NullPool to avoid connection sharing issues
+# across different event loops (especially in tests)
 engine = create_async_engine(
     settings.database_url,
     echo=settings.debug,
+    poolclass=NullPool,
 )
 
 # Create async session factory
