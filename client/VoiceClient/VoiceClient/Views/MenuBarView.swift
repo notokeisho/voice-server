@@ -72,7 +72,7 @@ struct MenuBarView: View {
             Spacer()
 
             // Hotkey hint
-            Text("⌘⇧V")
+            Text(AppSettings.shared.hotkeyDisplayString)
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .padding(.horizontal, 6)
