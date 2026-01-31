@@ -11,16 +11,23 @@ Aqua Voice の代替として構築する音声入力システム。whisper.cpp 
 
 ## システム構成
 
-```
-┌─────────────────┐     ┌─────────────────────────────────┐
-│   Mac Client    │     │           Server                │
-│   (SwiftUI)     │────►│  FastAPI + whisper.cpp server   │
-└─────────────────┘     │  + PostgreSQL                   │
-                        └─────────────────────────────────┘
-┌─────────────────┐                    │
-│   Admin Web     │────────────────────┘
-│   (React)       │
-└─────────────────┘
+```mermaid
+flowchart LR
+    subgraph Client["クライアント"]
+        MC[Mac Client<br/>SwiftUI]
+        AW[Admin Web<br/>React]
+    end
+
+    subgraph Server["サーバー"]
+        API[FastAPI<br/>認証・API]
+        WS[whisper.cpp<br/>音声認識]
+        DB[(PostgreSQL)]
+    end
+
+    MC -->|音声データ| API
+    AW -->|管理操作| API
+    API <-->|認識リクエスト| WS
+    API <-->|データ永続化| DB
 ```
 
 ## ディレクトリ構成
