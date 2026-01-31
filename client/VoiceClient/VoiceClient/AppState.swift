@@ -1,5 +1,6 @@
 import SwiftUI
 import Combine
+import AVFoundation
 
 /// Application state enumeration representing different states of the voice client.
 enum AppStatus: Equatable {
@@ -82,22 +83,35 @@ class AppState: ObservableObject {
     /// The transcribed text from the last successful transcription.
     @Published var lastTranscribedText: String?
 
-    /// Recording duration in seconds.
+    /// Recording duration in seconds (synced from AudioRecorder).
     @Published private(set) var recordingDuration: TimeInterval = 0
+
+    /// Current audio level for visualization (0.0 to 1.0).
+    @Published private(set) var audioLevel: Float = 0
+
+    // MARK: - Services
+
+    /// Audio recorder instance.
+    private let audioRecorder = AudioRecorder.shared
 
     // MARK: - Private Properties
 
     /// Timer for auto-reset after completion/error.
     private var autoResetTimer: Timer?
 
-    /// Timer for tracking recording duration.
-    private var recordingTimer: Timer?
+    /// Timer for syncing recording state.
+    private var syncTimer: Timer?
+
+    /// Cancellables for Combine subscriptions.
+    private var cancellables = Set<AnyCancellable>()
 
     /// Duration before auto-resetting to idle (in seconds).
     private let autoResetDelay: TimeInterval = 3.0
 
     /// Maximum recording duration (in seconds).
-    let maxRecordingDuration: TimeInterval = 60.0
+    var maxRecordingDuration: TimeInterval {
+        audioRecorder.maxDuration
+    }
 
     // MARK: - Computed Properties
 
@@ -122,34 +136,86 @@ class AppState: ObservableObject {
         return String(format: "%02d:%02d", seconds / 60, seconds % 60)
     }
 
-    // MARK: - State Transitions
-
-    /// Start recording.
-    func startRecording() {
-        cancelTimers()
-        status = .recording
-        recordingDuration = 0
-
-        // Start duration timer
-        recordingTimer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                guard let self = self else { return }
-                self.recordingDuration += 0.1
-
-                // Auto-stop at max duration
-                if self.recordingDuration >= self.maxRecordingDuration {
-                    self.stopRecording()
-                }
-            }
-        }
+    /// URL of the last recording file.
+    var lastRecordingURL: URL? {
+        audioRecorder.recordingURL
     }
 
-    /// Stop recording and start processing.
-    func stopRecording() {
-        guard status == .recording else { return }
-        recordingTimer?.invalidate()
-        recordingTimer = nil
+    // MARK: - Initialization
+
+    init() {
+        setupBindings()
+    }
+
+    private func setupBindings() {
+        // Sync recording duration from AudioRecorder
+        audioRecorder.$recordingDuration
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$recordingDuration)
+
+        // Handle recording errors
+        audioRecorder.$errorMessage
+            .compactMap { $0 }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] error in
+                self?.setError(error)
+            }
+            .store(in: &cancellables)
+    }
+
+    // MARK: - State Transitions
+
+    /// Start recording audio.
+    /// - Returns: `true` if recording started successfully.
+    @discardableResult
+    func startRecording() -> Bool {
+        cancelTimers()
+
+        guard audioRecorder.startRecording() else {
+            setError(audioRecorder.errorMessage ?? "Failed to start recording")
+            return false
+        }
+
+        status = .recording
+        lastError = nil
+
+        // Start sync timer for audio level updates
+        syncTimer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                guard let self = self, self.status == .recording else { return }
+                self.audioLevel = self.audioRecorder.getCurrentLevel()
+            }
+        }
+
+        return true
+    }
+
+    /// Stop recording and return the audio file URL.
+    /// - Returns: URL of the recorded audio file.
+    @discardableResult
+    func stopRecording() -> URL? {
+        guard status == .recording else { return nil }
+
+        syncTimer?.invalidate()
+        syncTimer = nil
+        audioLevel = 0
+
+        let url = audioRecorder.stopRecording()
         status = .processing
+
+        return url
+    }
+
+    /// Cancel recording without processing.
+    func cancelRecording() {
+        guard status == .recording else { return }
+
+        syncTimer?.invalidate()
+        syncTimer = nil
+        audioLevel = 0
+
+        audioRecorder.cancelRecording()
+        status = .idle
     }
 
     /// Mark transcription as completed.
@@ -157,6 +223,10 @@ class AppState: ObservableObject {
         status = .completed
         lastTranscribedText = text
         lastError = nil
+
+        // Cleanup recording file
+        audioRecorder.cleanupRecording()
+
         scheduleAutoReset()
     }
 
@@ -164,6 +234,10 @@ class AppState: ObservableObject {
     func setError(_ message: String) {
         status = .error
         lastError = message
+
+        // Cleanup recording file on error
+        audioRecorder.cleanupRecording()
+
         scheduleAutoReset()
     }
 
@@ -172,7 +246,12 @@ class AppState: ObservableObject {
         cancelTimers()
         status = .idle
         lastError = nil
-        recordingDuration = 0
+        audioLevel = 0
+    }
+
+    /// Check and request microphone permission.
+    func checkMicrophonePermission() async -> Bool {
+        await audioRecorder.requestMicrophonePermission()
     }
 
     // MARK: - Private Methods
@@ -191,12 +270,12 @@ class AppState: ObservableObject {
     private func cancelTimers() {
         autoResetTimer?.invalidate()
         autoResetTimer = nil
-        recordingTimer?.invalidate()
-        recordingTimer = nil
+        syncTimer?.invalidate()
+        syncTimer = nil
     }
 
     deinit {
         autoResetTimer?.invalidate()
-        recordingTimer?.invalidate()
+        syncTimer?.invalidate()
     }
 }
