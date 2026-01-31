@@ -1101,12 +1101,12 @@ This project uses the following open source software:
 
 ---
 
-### 6.3 本番環境設定
+### 6.4 本番環境設定
 
 **タスク**:
-- [ ] HTTPS 設定
-- [ ] ドメイン設定
-- [ ] GitHub OAuth アプリ設定（本番用）
+- [x] HTTPS 設定（nginx.prod.conf, certbot）
+- [x] ドメイン設定（docker-compose.prod.yml）
+- [x] GitHub OAuth アプリ設定（本番用）
 
 ---
 
@@ -1131,8 +1131,8 @@ This project uses the following open source software:
 | 3 | 5 | 5 | 100% |
 | 4 | 12 | 12 | 100% |
 | 5 | 8 | 8 | 100% |
-| 6 | 4 | 0 | 0% |
-| **合計** | **44** | **40** | **91%** |
+| 6 | 4 | 4 | 100% |
+| **合計** | **44** | **44** | **100%** |
 
 ---
 
@@ -1147,3 +1147,4 @@ This project uses the following open source software:
 | 2026-01-30 | 辞書機能追加（グローバル辞書+個人辞書、個人辞書100件上限、Macアプリで編集） |
 | 2026-01-30 | ライセンス表記タスク追加（README、Macアプリ About画面） |
 | 2026-01-31 | Phase 4、Phase 5完了を記録（Task 4.11含む） |
+| 2026-01-31 | Phase 6完了、全タスク100%達成 |

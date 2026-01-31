@@ -1,0 +1,78 @@
+services:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    expose:
+      - "8000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - WHISPER_SERVER_URL=http://whisper:8080
+      - APP_NAME=KumaKuma AI Voice Server
+      - DEBUG=false
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-voice_server}
+      - POSTGRES_USER=${POSTGRES_USER:-voice}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  whisper:
+    build:
+      context: ./whisper
+      dockerfile: Dockerfile
+    expose:
+      - "8080"
+    volumes:
+      - ./whisper/models:/app/models:ro
+    restart: unless-stopped
+
+  admin-web:
+    build:
+      context: ./admin-web
+      dockerfile: Dockerfile
+    expose:
+      - "80"
+    depends_on:
+      - server
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./certbot/www:/var/www/certbot:ro
+    depends_on:
+      - server
+      - admin-web
+    restart: unless-stopped
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    driver: bridge

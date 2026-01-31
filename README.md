@@ -94,6 +94,42 @@ npm run dev
 2. Applications フォルダに配置
 3. 初回起動時に「システム設定 > プライバシーとセキュリティ」で許可
 
+## 本番環境デプロイ
+
+### 1. GitHub OAuth アプリ設定
+
+1. [GitHub Developer Settings](https://github.com/settings/developers) で新しい OAuth App を作成
+2. Authorization callback URL: `https://api.yourdomain.com/auth/callback`
+3. Client ID と Client Secret を `.env` に設定
+
+### 2. SSL証明書の取得
+
+```bash
+# certbot で Let's Encrypt 証明書を取得
+docker compose -f docker-compose.prod.yml run --rm certbot certonly \
+  --webroot --webroot-path=/var/www/certbot \
+  -d api.yourdomain.com -d admin.yourdomain.com
+```
+
+### 3. 本番環境起動
+
+```bash
+# 環境変数を設定
+cp .env.example .env
+# .env を本番用に編集
+
+# nginx設定のドメインを変更
+# nginx/nginx.prod.conf の server_name を実際のドメインに変更
+
+# 本番環境起動
+docker compose -f docker-compose.prod.yml up -d
+```
+
+### 4. DNS設定
+
+- `api.yourdomain.com` → サーバーIP
+- `admin.yourdomain.com` → サーバーIP
+
 ## トラブルシューティング
 
 ### Mac クライアントが起動しない
