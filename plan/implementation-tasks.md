@@ -738,11 +738,11 @@ struct VoiceClientApp: App {
 ### 4.3.1 個人辞書編集画面
 
 **タスク**:
-- [ ] DictionaryView 実装
-- [ ] 辞書一覧表示（パターン、置換後）
-- [ ] エントリ追加フォーム
-- [ ] エントリ削除機能
-- [ ] 登録数表示（例: 15/100）
+- [x] DictionaryView 実装（DictionarySettingsView）
+- [x] 辞書一覧表示（パターン、置換後）
+- [x] エントリ追加フォーム
+- [x] エントリ削除機能
+- [x] 登録数表示（例: 15/100）
 
 **UI 構成**:
 ```
@@ -773,11 +773,11 @@ struct VoiceClientApp: App {
 ### 4.4 OAuth 認証フロー
 
 **タスク**:
-- [ ] ASWebAuthenticationSession 実装
-- [ ] KeychainHelper クラス実装
-- [ ] JWT トークン保存（Keychain に暗号化保存）
-- [ ] ログイン/ログアウト機能
-- [ ] トークン期限切れ検知
+- [x] ASWebAuthenticationSession 実装
+- [x] KeychainHelper クラス実装
+- [x] JWT トークン保存（Keychain に暗号化保存）
+- [x] ログイン/ログアウト機能
+- [x] トークン期限切れ検知
 
 **Keychain 実装**:
 ```swift
@@ -802,10 +802,10 @@ class KeychainHelper {
 ### 4.5 音声録音
 
 **タスク**:
-- [ ] AudioRecorder クラス実装
-- [ ] AVFoundation で録音
-- [ ] WAV フォーマット（16kHz, mono）で保存
-- [ ] 最大録音時間: 60秒（超過時は自動停止）
+- [x] AudioRecorder クラス実装
+- [x] AVFoundation で録音
+- [x] WAV フォーマット（16kHz, mono）で保存
+- [x] 最大録音時間: 60秒（超過時は自動停止）
 
 **録音設定**:
 | 項目 | 値 |
@@ -831,9 +831,9 @@ class AudioRecorder: ObservableObject {
 ### 4.6 グローバルホットキー
 
 **タスク**:
-- [ ] HotkeyManager 実装
-- [ ] CGEvent でグローバルキー監視
-- [ ] 押下/離す イベント検知（ホールド式）
+- [x] HotkeyManager 実装
+- [x] CGEvent でグローバルキー監視
+- [x] 押下/離す イベント検知（ホールド式）
 
 **動作仕様**:
 - ホットキー押下 → 録音開始
@@ -847,9 +847,9 @@ class AudioRecorder: ObservableObject {
 ### 4.7 API クライアント
 
 **タスク**:
-- [ ] APIClient 実装
-- [ ] URLSession で音声ファイル送信
-- [ ] レスポンス処理
+- [x] APIClient 実装
+- [x] URLSession で音声ファイル送信
+- [x] レスポンス処理
 
 **コード例**:
 ```swift
@@ -863,11 +863,11 @@ class APIClient {
 ### 4.8 クリップボード操作
 
 **タスク**:
-- [ ] ClipboardManager 実装
-- [ ] 現在の内容を退避
-- [ ] テキストをコピー
-- [ ] Cmd+V シミュレート
-- [ ] 元の内容を復元
+- [x] ClipboardManager 実装
+- [x] 現在の内容を退避
+- [x] テキストをコピー
+- [x] Cmd+V シミュレート
+- [x] 元の内容を復元
 
 **コード例**:
 ```swift
@@ -886,9 +886,9 @@ class ClipboardManager {
 ### 4.9 エラー通知
 
 **タスク**:
-- [ ] NotificationManager 実装
-- [ ] macOS UserNotifications 連携
-- [ ] エラーレベルに応じた通知制御
+- [x] NotificationManager 実装
+- [x] macOS UserNotifications 連携
+- [x] エラーレベルに応じた通知制御
 
 **通知ルール**:
 | エラー種別 | アイコン変化 | macOS 通知 |
@@ -903,9 +903,9 @@ class ClipboardManager {
 ### 4.10 統合・動作確認
 
 **タスク**:
-- [ ] 全コンポーネント統合
-- [ ] エラーハンドリング
-- [ ] 手動テスト
+- [x] 全コンポーネント統合
+- [x] エラーハンドリング
+- [x] 手動テスト
 
 **テストシナリオ（正常系）**:
 1. アプリ起動 → メニューバーにアイコン表示
@@ -1129,10 +1129,10 @@ This project uses the following open source software:
 | 1 | 4 | 4 | 100% |
 | 2 | 8 | 8 | 100% |
 | 3 | 5 | 5 | 100% |
-| 4 | 12 | 3 | 25% |
+| 4 | 12 | 11 | 92% |
 | 5 | 8 | 8 | 100% |
 | 6 | 4 | 0 | 0% |
-| **合計** | **44** | **31** | **70%** |
+| **合計** | **44** | **39** | **89%** |
 
 ---
 
@@ -1146,4 +1146,4 @@ This project uses the following open source software:
 | 2026-01-30 | 追加決定事項反映（管理者Whitelist免除、手動モデルDL、Mac配布方法、開発環境モック） |
 | 2026-01-30 | 辞書機能追加（グローバル辞書+個人辞書、個人辞書100件上限、Macアプリで編集） |
 | 2026-01-30 | ライセンス表記タスク追加（README、Macアプリ About画面） |
-| 2026-01-31 | Phase 5完了（Admin Dashboard、Admin API、ビルド設定） |
+| 2026-01-31 | Phase 4 (4.3.1-4.10)、Phase 5完了を記録 |
