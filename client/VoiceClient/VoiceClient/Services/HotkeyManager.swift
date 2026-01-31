@@ -134,9 +134,24 @@ class HotkeyManager: ObservableObject {
             guard let refcon = refcon else { return Unmanaged.passRetained(event) }
             let manager = Unmanaged<HotkeyManager>.fromOpaque(refcon).takeUnretainedValue()
 
-            // Handle the event on main thread
-            DispatchQueue.main.async {
-                manager.handleEvent(type: type, event: event)
+            // Check if this is our hotkey (synchronously, thread-safe)
+            let isHotkey = manager.isMatchingHotkeySync(event: event)
+
+            // For keyDown, check if it matches our hotkey
+            if type == .keyDown && isHotkey {
+                DispatchQueue.main.async {
+                    manager.handleEvent(type: type, event: event)
+                }
+                // Consume the event to prevent key from being typed
+                return nil
+            }
+
+            // For keyUp and flagsChanged, always pass to handleEvent
+            // so we can properly detect when the hotkey is released
+            if type == .keyUp || type == .flagsChanged {
+                DispatchQueue.main.async {
+                    manager.handleEvent(type: type, event: event)
+                }
             }
 
             return Unmanaged.passRetained(event)
@@ -150,6 +165,41 @@ class HotkeyManager: ObservableObject {
             callback: callback,
             userInfo: refcon
         )
+    }
+
+    /// Thread-safe hotkey matching for use in CGEventTap callback.
+    /// Reads directly from UserDefaults which is thread-safe.
+    nonisolated private func isMatchingHotkeySync(event: CGEvent) -> Bool {
+        let keyCode = UInt16(event.getIntegerValueField(.keyboardEventKeycode))
+        let flags = event.flags
+
+        // Read directly from UserDefaults (thread-safe)
+        let configuredKeyCode = UInt16(UserDefaults.standard.integer(forKey: "hotkeyKeyCode"))
+        let configuredModifiers = UInt(UserDefaults.standard.integer(forKey: "hotkeyModifiers"))
+
+        // Use defaults if not set
+        let effectiveKeyCode = configuredKeyCode == 0 ? UInt16(47) : configuredKeyCode // Period (.)
+        let effectiveModifiers = configuredModifiers == 0 ? UInt(0x040000) : configuredModifiers // Control
+
+        // Check key code
+        guard keyCode == effectiveKeyCode else { return false }
+
+        // Check modifiers
+        var currentModifiers: UInt = 0
+        if flags.contains(.maskCommand) {
+            currentModifiers |= (1 << 20)
+        }
+        if flags.contains(.maskShift) {
+            currentModifiers |= (1 << 17)
+        }
+        if flags.contains(.maskControl) {
+            currentModifiers |= (1 << 18)
+        }
+        if flags.contains(.maskAlternate) {
+            currentModifiers |= (1 << 19)
+        }
+
+        return (currentModifiers & effectiveModifiers) == effectiveModifiers
     }
 
     private func handleEvent(type: CGEventType, event: CGEvent) {
@@ -242,9 +292,9 @@ extension HotkeyManager {
         settings.hotkeyModifiers = modifiers
     }
 
-    /// Reset hotkey to default (Option+Space).
+    /// Reset hotkey to default (Control+Period).
     func resetToDefault() {
-        settings.hotkeyKeyCode = 49 // Space key
-        settings.hotkeyModifiers = 0x080000 // Option only
+        settings.hotkeyKeyCode = 47 // Period key (.)
+        settings.hotkeyModifiers = 0x040000 // Control only
     }
 }

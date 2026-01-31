@@ -20,8 +20,8 @@ class AppSettings: ObservableObject {
 
     private enum Defaults {
         static let serverURL = "http://localhost:8000"
-        static let hotkeyModifiers: UInt = 0x080000  // Option only
-        static let hotkeyKeyCode: UInt16 = 49        // Space key
+        static let hotkeyModifiers: UInt = 0x040000  // Control only
+        static let hotkeyKeyCode: UInt16 = 47        // Period key (.)
     }
 
     // MARK: - Published Properties

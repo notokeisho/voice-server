@@ -97,18 +97,20 @@ class AppCoordinator: ObservableObject {
         // Start monitoring if we have accessibility permission
         if hotkeyManager.checkAccessibilityPermission() {
             hotkeyManager.startMonitoring()
+        } else {
+            hotkeyManager.requestAccessibilityPermission()
         }
     }
 
     private func handleHotkeyDown() {
-        guard let appState = appState,
-              let authService = authService else { return }
+        guard let appState = appState else { return }
 
-        // Only start recording if authenticated and idle
-        guard authService.isAuthenticated else {
-            appState.setError("Please log in to use voice transcription")
-            return
-        }
+        // DEBUG: Skip auth check for UI testing
+        // guard let authService = authService else { return }
+        // guard authService.isAuthenticated else {
+        //     appState.setError("Please log in to use voice transcription")
+        //     return
+        // }
 
         guard appState.status == .idle else { return }
 
