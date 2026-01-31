@@ -268,125 +268,333 @@ struct ModifierToggle: View {
 
 // MARK: - Dictionary Settings Tab
 
-/// Dictionary settings tab (placeholder for Task 4.3.1).
+/// Dictionary settings tab with full API integration.
 struct DictionarySettingsView: View {
-    @State private var entries: [DictionaryEntry] = []
+    @StateObject private var service = DictionaryService.shared
     @State private var newPattern = ""
     @State private var newReplacement = ""
-    @State private var isLoading = false
-    @State private var errorMessage: String?
+    @State private var showingDeleteConfirmation = false
+    @State private var entryToDelete: DictionaryEntry?
 
-    struct DictionaryEntry: Identifiable {
-        let id: Int
-        let pattern: String
-        let replacement: String
+    // TODO: Get from AuthService when implemented (Task 4.4)
+    private var authToken: String? {
+        // Placeholder - will be replaced with actual token from Keychain
+        nil
+    }
+
+    private var isAuthenticated: Bool {
+        authToken != nil
     }
 
     var body: some View {
         VStack(spacing: 0) {
             // Header
-            HStack {
-                Text("Personal Dictionary")
-                    .font(.headline)
-                Spacer()
-                Text("\(entries.count)/100")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            .padding()
+            headerView
+                .padding()
 
             Divider()
 
-            // Entry list
-            if entries.isEmpty {
-                VStack(spacing: 8) {
-                    Image(systemName: "text.book.closed")
-                        .font(.largeTitle)
-                        .foregroundColor(.secondary)
-                    Text("No dictionary entries")
-                        .foregroundColor(.secondary)
-                    Text("Add patterns to customize transcription")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            // Content
+            if !isAuthenticated {
+                notAuthenticatedView
+            } else if service.isLoading && service.entries.isEmpty {
+                loadingView
+            } else if service.entries.isEmpty {
+                emptyStateView
             } else {
-                List {
-                    ForEach(entries) { entry in
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text(entry.pattern)
-                                    .font(.body)
-                                Text("→ \(entry.replacement)")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            Spacer()
-                            Button {
-                                deleteEntry(entry)
-                            } label: {
-                                Image(systemName: "trash")
-                                    .foregroundColor(.red)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                }
+                entryListView
             }
 
             Divider()
 
-            // Add new entry
-            VStack(spacing: 8) {
-                HStack {
-                    TextField("Pattern", text: $newPattern)
-                        .textFieldStyle(.roundedBorder)
-                    Text("→")
-                    TextField("Replacement", text: $newReplacement)
-                        .textFieldStyle(.roundedBorder)
-                    Button("Add") {
-                        addEntry()
-                    }
-                    .disabled(newPattern.isEmpty || newReplacement.isEmpty || entries.count >= 100)
-                }
-
-                if let error = errorMessage {
-                    Text(error)
-                        .font(.caption)
-                        .foregroundColor(.red)
-                }
+            // Add new entry form
+            if isAuthenticated {
+                addEntryForm
+                    .padding()
             }
-            .padding()
         }
         .onAppear {
             loadEntries()
         }
+        .alert("Delete Entry", isPresented: $showingDeleteConfirmation) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                if let entry = entryToDelete {
+                    deleteEntry(entry)
+                }
+            }
+        } message: {
+            if let entry = entryToDelete {
+                Text("Delete \"\(entry.pattern)\" → \"\(entry.replacement)\"?")
+            }
+        }
     }
 
+    // MARK: - Subviews
+
+    private var headerView: some View {
+        HStack {
+            Text("Personal Dictionary")
+                .font(.headline)
+
+            Spacer()
+
+            if service.isLoading {
+                ProgressView()
+                    .scaleEffect(0.7)
+            }
+
+            Text("\(service.entryCount)/\(service.maxEntries)")
+                .font(.caption)
+                .foregroundColor(service.canAddMore ? .secondary : .orange)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 2)
+                .background(Color.secondary.opacity(0.1))
+                .cornerRadius(4)
+
+            if isAuthenticated {
+                Button {
+                    loadEntries()
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                }
+                .buttonStyle(.plain)
+                .disabled(service.isLoading)
+            }
+        }
+    }
+
+    private var notAuthenticatedView: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "person.badge.key")
+                .font(.system(size: 40))
+                .foregroundColor(.secondary)
+
+            Text("Login Required")
+                .font(.headline)
+
+            Text("Please log in to manage your personal dictionary")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
+    }
+
+    private var loadingView: some View {
+        VStack(spacing: 12) {
+            ProgressView()
+            Text("Loading dictionary...")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var emptyStateView: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "text.book.closed")
+                .font(.system(size: 40))
+                .foregroundColor(.secondary)
+
+            Text("No Dictionary Entries")
+                .font(.headline)
+
+            Text("Add patterns to customize how words are transcribed")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+
+            // Example
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Example:")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+                HStack {
+                    Text("くろーど")
+                        .font(.caption)
+                    Text("→")
+                        .foregroundColor(.secondary)
+                    Text("Claude")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                }
+            }
+            .padding(8)
+            .background(Color.secondary.opacity(0.1))
+            .cornerRadius(6)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
+    }
+
+    private var entryListView: some View {
+        List {
+            ForEach(service.entries) { entry in
+                DictionaryEntryRow(
+                    entry: entry,
+                    onDelete: {
+                        entryToDelete = entry
+                        showingDeleteConfirmation = true
+                    }
+                )
+            }
+        }
+        .listStyle(.plain)
+    }
+
+    private var addEntryForm: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Pattern")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                    TextField("e.g., くろーど", text: $newPattern)
+                        .textFieldStyle(.roundedBorder)
+                }
+
+                Text("→")
+                    .foregroundColor(.secondary)
+                    .padding(.top, 14)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Replacement")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                    TextField("e.g., Claude", text: $newReplacement)
+                        .textFieldStyle(.roundedBorder)
+                }
+
+                Button {
+                    addEntry()
+                } label: {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title2)
+                }
+                .buttonStyle(.plain)
+                .foregroundColor(canAdd ? .accentColor : .secondary)
+                .disabled(!canAdd)
+                .padding(.top, 14)
+            }
+
+            // Error message
+            if let error = service.errorMessage {
+                HStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundColor(.red)
+                    Text(error)
+                        .font(.caption)
+                        .foregroundColor(.red)
+                    Spacer()
+                    Button("Dismiss") {
+                        service.errorMessage = nil
+                    }
+                    .font(.caption)
+                }
+                .padding(8)
+                .background(Color.red.opacity(0.1))
+                .cornerRadius(6)
+            }
+
+            // Limit warning
+            if !service.canAddMore {
+                HStack {
+                    Image(systemName: "exclamationmark.circle.fill")
+                        .foregroundColor(.orange)
+                    Text("Dictionary limit reached (100 entries)")
+                        .font(.caption)
+                        .foregroundColor(.orange)
+                }
+            }
+        }
+    }
+
+    // MARK: - Computed Properties
+
+    private var canAdd: Bool {
+        !newPattern.isEmpty &&
+        !newReplacement.isEmpty &&
+        service.canAddMore &&
+        !service.isLoading
+    }
+
+    // MARK: - Actions
+
     private func loadEntries() {
-        // TODO: Load from API (Task 4.3.1)
-        isLoading = true
-        // Simulated data for now
-        entries = []
-        isLoading = false
+        guard let token = authToken else { return }
+        Task {
+            await service.fetchEntries(token: token)
+        }
     }
 
     private func addEntry() {
-        // TODO: Add via API (Task 4.3.1)
-        guard !newPattern.isEmpty, !newReplacement.isEmpty else { return }
-        let newEntry = DictionaryEntry(
-            id: entries.count + 1,
-            pattern: newPattern,
-            replacement: newReplacement
-        )
-        entries.append(newEntry)
-        newPattern = ""
-        newReplacement = ""
+        guard let token = authToken else { return }
+        let pattern = newPattern.trimmingCharacters(in: .whitespaces)
+        let replacement = newReplacement.trimmingCharacters(in: .whitespaces)
+
+        guard !pattern.isEmpty, !replacement.isEmpty else { return }
+
+        Task {
+            let success = await service.addEntry(
+                pattern: pattern,
+                replacement: replacement,
+                token: token
+            )
+            if success {
+                newPattern = ""
+                newReplacement = ""
+            }
+        }
     }
 
     private func deleteEntry(_ entry: DictionaryEntry) {
-        // TODO: Delete via API (Task 4.3.1)
-        entries.removeAll { $0.id == entry.id }
+        guard let token = authToken else { return }
+        Task {
+            await service.deleteEntry(id: entry.id, token: token)
+        }
+    }
+}
+
+/// Row view for a dictionary entry.
+struct DictionaryEntryRow: View {
+    let entry: DictionaryEntry
+    let onDelete: () -> Void
+
+    @State private var isHovering = false
+
+    var body: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(entry.pattern)
+                    .font(.body)
+                    .fontWeight(.medium)
+
+                HStack(spacing: 4) {
+                    Text("→")
+                        .foregroundColor(.secondary)
+                    Text(entry.replacement)
+                        .foregroundColor(.secondary)
+                }
+                .font(.caption)
+            }
+
+            Spacer()
+
+            if isHovering {
+                Button(action: onDelete) {
+                    Image(systemName: "trash")
+                        .foregroundColor(.red)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.vertical, 4)
+        .contentShape(Rectangle())
+        .onHover { hovering in
+            isHovering = hovering
+        }
     }
 }
 
