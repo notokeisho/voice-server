@@ -5,96 +5,184 @@ struct MenuBarView: View {
     @EnvironmentObject var appState: AppState
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Status display
-            HStack {
-                Image(systemName: appState.statusIcon)
-                    .foregroundColor(statusColor)
-                Text(statusText)
-                    .font(.headline)
-            }
-            .padding(.horizontal)
+        VStack(alignment: .leading, spacing: 4) {
+            // Status header
+            statusHeader
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
 
             Divider()
 
-            // Last transcribed text (if any)
-            if let text = appState.lastTranscribedText {
-                Text("Last: \(text.prefix(50))...")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal)
-                    .lineLimit(2)
+            // Recording info (shown during recording)
+            if appState.status == .recording {
+                recordingInfo
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 4)
+                Divider()
+            }
 
+            // Last transcribed text (if any)
+            if let text = appState.lastTranscribedText, !text.isEmpty {
+                lastTranscribedSection(text: text)
                 Divider()
             }
 
             // Error message (if any)
             if let error = appState.lastError {
-                Text(error)
-                    .font(.caption)
-                    .foregroundColor(.red)
-                    .padding(.horizontal)
-                    .lineLimit(2)
-
+                errorSection(error: error)
                 Divider()
             }
 
             // Menu items
+            menuItems
+                .padding(.vertical, 4)
+        }
+        .frame(width: 280)
+    }
+
+    // MARK: - Subviews
+
+    private var statusHeader: some View {
+        HStack(spacing: 8) {
+            // Animated status icon
+            statusIcon
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(appState.statusText)
+                    .font(.headline)
+
+                if appState.isAuthenticated {
+                    Text("Authenticated")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                } else {
+                    Text("Not logged in")
+                        .font(.caption2)
+                        .foregroundColor(.orange)
+                }
+            }
+
+            Spacer()
+
+            // Hotkey hint
+            Text("⌘⇧V")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(Color.secondary.opacity(0.15))
+                .cornerRadius(4)
+        }
+    }
+
+    @ViewBuilder
+    private var statusIcon: some View {
+        if #available(macOS 14.0, *) {
+            Image(systemName: appState.statusIcon)
+                .font(.title2)
+                .foregroundColor(appState.statusColor)
+                .symbolEffect(.pulse, isActive: appState.status == .processing)
+                .animation(.easeInOut, value: appState.status)
+        } else {
+            Image(systemName: appState.statusIcon)
+                .font(.title2)
+                .foregroundColor(appState.statusColor)
+                .animation(.easeInOut, value: appState.status)
+        }
+    }
+
+    private var recordingInfo: some View {
+        HStack {
+            // Recording indicator
+            Circle()
+                .fill(Color.red)
+                .frame(width: 8, height: 8)
+                .opacity(pulsingOpacity)
+                .animation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true), value: pulsingOpacity)
+
+            Text("Recording")
+                .font(.subheadline)
+                .foregroundColor(.red)
+
+            Spacer()
+
+            // Duration
+            Text(appState.recordingDurationText)
+                .font(.system(.subheadline, design: .monospaced))
+                .foregroundColor(.secondary)
+
+            Text("/ \(formatDuration(appState.maxRecordingDuration))")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+    }
+
+    @State private var pulsingOpacity: Double = 1.0
+
+    private func lastTranscribedSection(text: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Last transcription:")
+                .font(.caption)
+                .foregroundColor(.secondary)
+
+            Text(text.prefix(100) + (text.count > 100 ? "..." : ""))
+                .font(.callout)
+                .lineLimit(3)
+                .padding(8)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color.secondary.opacity(0.1))
+                .cornerRadius(6)
+
+            Button("Copy to Clipboard") {
+                copyToClipboard(text)
+            }
+            .buttonStyle(.link)
+            .font(.caption)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 4)
+    }
+
+    private func errorSection(error: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundColor(.red)
+
+            Text(error)
+                .font(.caption)
+                .foregroundColor(.red)
+                .lineLimit(2)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 4)
+    }
+
+    private var menuItems: some View {
+        VStack(spacing: 0) {
             if appState.isAuthenticated {
-                Button("Settings...") {
-                    openSettings()
+                Button(action: openSettings) {
+                    Label("Settings...", systemImage: "gear")
                 }
                 .keyboardShortcut(",", modifiers: .command)
 
-                Button("Logout") {
-                    logout()
+                Button(action: logout) {
+                    Label("Logout", systemImage: "rectangle.portrait.and.arrow.right")
                 }
             } else {
-                Button("Login with GitHub") {
-                    login()
+                Button(action: login) {
+                    Label("Login with GitHub", systemImage: "person.badge.key")
                 }
             }
 
             Divider()
+                .padding(.vertical, 4)
 
-            Button("Quit") {
-                NSApplication.shared.terminate(nil)
+            Button(action: quitApp) {
+                Label("Quit VoiceClient", systemImage: "power")
             }
             .keyboardShortcut("q", modifiers: .command)
         }
-        .padding(.vertical, 8)
-    }
-
-    // MARK: - Computed Properties
-
-    private var statusColor: Color {
-        switch appState.status {
-        case .idle:
-            return .primary
-        case .recording:
-            return .red
-        case .processing:
-            return .orange
-        case .completed:
-            return .green
-        case .error:
-            return .red
-        }
-    }
-
-    private var statusText: String {
-        switch appState.status {
-        case .idle:
-            return "Ready"
-        case .recording:
-            return "Recording..."
-        case .processing:
-            return "Processing..."
-        case .completed:
-            return "Completed"
-        case .error:
-            return "Error"
-        }
+        .buttonStyle(MenuButtonStyle())
     }
 
     // MARK: - Actions
@@ -104,12 +192,41 @@ struct MenuBarView: View {
     }
 
     private func login() {
-        // TODO: Implement OAuth login
+        // TODO: Implement OAuth login (Task 4.4)
     }
 
     private func logout() {
-        // TODO: Implement logout
+        // TODO: Implement logout (Task 4.4)
         appState.isAuthenticated = false
+    }
+
+    private func quitApp() {
+        NSApplication.shared.terminate(nil)
+    }
+
+    private func copyToClipboard(_ text: String) {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
+    }
+
+    // MARK: - Helpers
+
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let seconds = Int(duration)
+        return String(format: "%02d:%02d", seconds / 60, seconds % 60)
+    }
+}
+
+// MARK: - Custom Button Style
+
+struct MenuButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(configuration.isPressed ? Color.accentColor.opacity(0.2) : Color.clear)
+            .contentShape(Rectangle())
     }
 }
 
@@ -118,9 +235,34 @@ struct MenuBarView: View {
 #if DEBUG
 struct MenuBarView_Previews: PreviewProvider {
     static var previews: some View {
-        MenuBarView()
-            .environmentObject(AppState())
-            .frame(width: 250)
+        Group {
+            // Idle state
+            MenuBarView()
+                .environmentObject(makeAppState(status: .idle))
+                .previewDisplayName("Idle")
+
+            // Recording state
+            MenuBarView()
+                .environmentObject(makeAppState(status: .recording))
+                .previewDisplayName("Recording")
+
+            // Completed state
+            MenuBarView()
+                .environmentObject(makeAppState(status: .completed, lastText: "This is a test transcription."))
+                .previewDisplayName("Completed")
+
+            // Error state
+            MenuBarView()
+                .environmentObject(makeAppState(status: .error, error: "Connection failed"))
+                .previewDisplayName("Error")
+        }
+    }
+
+    static func makeAppState(status: AppStatus, lastText: String? = nil, error: String? = nil) -> AppState {
+        let state = AppState()
+        // Note: In preview, we can't directly set private(set) properties
+        // This is just for preview purposes
+        return state
     }
 }
 #endif

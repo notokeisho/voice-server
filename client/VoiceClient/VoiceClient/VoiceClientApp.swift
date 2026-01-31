@@ -12,13 +12,50 @@ struct VoiceClientApp: App {
             MenuBarView()
                 .environmentObject(appState)
         } label: {
-            Image(systemName: appState.statusIcon)
+            MenuBarLabel()
+                .environmentObject(appState)
         }
+        .menuBarExtraStyle(.window)
 
         // Settings window
         Settings {
             SettingsView()
                 .environmentObject(appState)
+        }
+    }
+}
+
+/// Custom label for the menu bar icon with dynamic appearance.
+struct MenuBarLabel: View {
+    @EnvironmentObject var appState: AppState
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: appState.statusIcon)
+                .symbolRenderingMode(.palette)
+                .foregroundStyle(iconColor)
+
+            // Show recording time in menu bar during recording
+            if appState.status == .recording {
+                Text(appState.recordingDurationText)
+                    .font(.system(.caption, design: .monospaced))
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+
+    private var iconColor: Color {
+        switch appState.status {
+        case .idle:
+            return .primary
+        case .recording:
+            return .red
+        case .processing:
+            return .orange
+        case .completed:
+            return .green
+        case .error:
+            return .red
         }
     }
 }
