@@ -6,13 +6,8 @@ import SwiftUI
 struct VoiceClientApp: App {
     @StateObject private var appState = AppState()
     @StateObject private var authService = AuthService.shared
-
-    init() {
-        // Check authentication status on launch
-        Task { @MainActor in
-            await AuthService.shared.checkAuthStatus()
-        }
-    }
+    @StateObject private var hotkeyManager = HotkeyManager.shared
+    @StateObject private var coordinator = AppCoordinator.shared
 
     var body: some Scene {
         // Menu bar extra (system tray icon)
@@ -20,6 +15,15 @@ struct VoiceClientApp: App {
             MenuBarView()
                 .environmentObject(appState)
                 .environmentObject(authService)
+                .environmentObject(hotkeyManager)
+                .onAppear {
+                    // Initialize coordinator with shared instances
+                    coordinator.setup(
+                        appState: appState,
+                        authService: authService,
+                        hotkeyManager: hotkeyManager
+                    )
+                }
         } label: {
             MenuBarLabel()
                 .environmentObject(appState)
@@ -31,6 +35,101 @@ struct VoiceClientApp: App {
             SettingsView()
                 .environmentObject(appState)
                 .environmentObject(authService)
+                .environmentObject(hotkeyManager)
+        }
+    }
+}
+
+/// Coordinator that manages app-wide interactions between services.
+@MainActor
+class AppCoordinator: ObservableObject {
+    /// Shared instance.
+    static let shared = AppCoordinator()
+
+    private weak var appState: AppState?
+    private weak var authService: AuthService?
+    private weak var hotkeyManager: HotkeyManager?
+
+    private var isSetup = false
+
+    private init() {}
+
+    /// Set up the coordinator with shared instances.
+    func setup(appState: AppState, authService: AuthService, hotkeyManager: HotkeyManager) {
+        guard !isSetup else { return }
+        isSetup = true
+
+        self.appState = appState
+        self.authService = authService
+        self.hotkeyManager = hotkeyManager
+
+        setupHotkeyCallbacks()
+        startHotkeyMonitoring()
+
+        // Check auth status on launch
+        Task {
+            await authService.checkAuthStatus()
+        }
+    }
+
+    private func setupHotkeyCallbacks() {
+        guard let hotkeyManager = hotkeyManager else { return }
+
+        hotkeyManager.onHotkeyDown = { [weak self] in
+            self?.handleHotkeyDown()
+        }
+
+        hotkeyManager.onHotkeyUp = { [weak self] in
+            self?.handleHotkeyUp()
+        }
+    }
+
+    private func startHotkeyMonitoring() {
+        guard let hotkeyManager = hotkeyManager else { return }
+
+        // Start monitoring if we have accessibility permission
+        if hotkeyManager.checkAccessibilityPermission() {
+            hotkeyManager.startMonitoring()
+        }
+    }
+
+    private func handleHotkeyDown() {
+        guard let appState = appState,
+              let authService = authService else { return }
+
+        // Only start recording if authenticated and idle
+        guard authService.isAuthenticated else {
+            appState.setError("Please log in to use voice transcription")
+            return
+        }
+
+        guard appState.status == .idle else { return }
+
+        appState.startRecording()
+    }
+
+    private func handleHotkeyUp() {
+        guard let appState = appState else { return }
+
+        guard appState.status == .recording else { return }
+
+        let audioURL = appState.stopRecording()
+
+        // TODO: Send audio to server for transcription (Task 4.7)
+        if let url = audioURL {
+            processRecording(url: url)
+        }
+    }
+
+    private func processRecording(url: URL) {
+        guard let appState = appState else { return }
+
+        // TODO: Implement in Task 4.7 (API Client)
+        // For now, just simulate completion
+        Task {
+            // Placeholder: will be replaced with actual API call
+            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 second delay
+            appState.setError("API client not implemented yet")
         }
     }
 }

@@ -316,11 +316,51 @@ struct GeneralSettingsView: View {
 /// Hotkey settings tab.
 struct HotkeySettingsView: View {
     @EnvironmentObject var settings: AppSettings
+    @StateObject private var hotkeyManager = HotkeyManager.shared
     @State private var isRecordingHotkey = false
     @State private var showHotkeyHelp = false
 
     var body: some View {
         Form {
+            // Accessibility Permission Section
+            Section {
+                HStack {
+                    if hotkeyManager.hasAccessibilityPermission {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                        Text("Accessibility access granted")
+                            .foregroundColor(.secondary)
+                    } else {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundColor(.orange)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Accessibility access required")
+                                .fontWeight(.medium)
+                            Text("VoiceClient needs accessibility access to detect global hotkeys")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+
+                    Spacer()
+
+                    if !hotkeyManager.hasAccessibilityPermission {
+                        Button("Grant Access") {
+                            hotkeyManager.requestAccessibilityPermission()
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+                }
+
+                if !hotkeyManager.hasAccessibilityPermission {
+                    Text("Go to System Settings > Privacy & Security > Accessibility and enable VoiceClient")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            } header: {
+                Text("Permissions")
+            }
+
             Section {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Current Hotkey")
@@ -392,6 +432,9 @@ struct HotkeySettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .onAppear {
+            hotkeyManager.checkAccessibilityPermission()
+        }
         .padding()
     }
 }
