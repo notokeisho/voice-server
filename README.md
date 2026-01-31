@@ -43,6 +43,19 @@ voice-server/
 - Node.js 18+
 - Xcode 15+ (Mac クライアントビルド用)
 
+### 環境変数
+
+| 変数名 | 必須 | 説明 | 例 |
+|--------|------|------|-----|
+| `DATABASE_URL` | Yes | データベース接続URL | `sqlite+aiosqlite:///./voice.db` |
+| `JWT_SECRET` | Yes | JWT署名用シークレットキー | ランダムな文字列 |
+| `GITHUB_CLIENT_ID` | Yes | GitHub OAuth App Client ID | `Iv1.xxxxxxxxxx` |
+| `GITHUB_CLIENT_SECRET` | Yes | GitHub OAuth App Client Secret | `xxxxxxxxxxxxxxxx` |
+| `OPENAI_API_KEY` | No | OpenAI API Key（将来の拡張用） | `sk-xxxxxxxx` |
+| `WHISPER_SERVER_URL` | No | whisper.cppサーバーURL | `http://localhost:8080` |
+| `APP_NAME` | No | アプリケーション名 | `KumaKuma AI` |
+| `DEBUG` | No | デバッグモード | `true` / `false` |
+
 ### サーバー起動
 
 ```bash
@@ -58,11 +71,59 @@ cd whisper/whisper.cpp/models
 ./download-ggml-model.sh large-v3-q8_0
 ```
 
+### 開発環境
+
+```bash
+# サーバー開発
+cd server
+uv sync
+uv run uvicorn app.main:app --reload
+
+# テスト実行
+uv run pytest
+
+# Admin Web開発
+cd admin-web
+npm install
+npm run dev
+```
+
 ### Mac クライアント
 
 1. GitHub Releases から .app をダウンロード
 2. Applications フォルダに配置
 3. 初回起動時に「システム設定 > プライバシーとセキュリティ」で許可
+
+## トラブルシューティング
+
+### Mac クライアントが起動しない
+
+1. 「システム設定 > プライバシーとセキュリティ」で「このまま開く」を選択
+2. マイクのアクセス許可を確認
+3. アクセシビリティ権限を確認（ホットキー機能に必要）
+
+### 認証エラー (403 Forbidden)
+
+- Whitelist に登録されているか確認
+- JWT トークンの有効期限（7日間）を確認
+- 管理画面からユーザーを再追加
+
+### 音声認識が遅い
+
+- whisper.cpp サーバーが起動しているか確認
+- モデルファイル（large-v3-q8_0）がダウンロードされているか確認
+- サーバーリソース（CPU/メモリ）を確認
+
+### docker compose up でエラー
+
+```bash
+# ログを確認
+docker compose logs -f
+
+# コンテナを再ビルド
+docker compose build --no-cache
+docker compose up -d
+```
 
 ## ライセンス
 
