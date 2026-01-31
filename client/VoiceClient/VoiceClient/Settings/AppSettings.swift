@@ -20,8 +20,8 @@ class AppSettings: ObservableObject {
 
     private enum Defaults {
         static let serverURL = "http://localhost:8000"
-        static let hotkeyModifiers: UInt = 0x180000  // Command + Shift
-        static let hotkeyKeyCode: UInt16 = 9         // V key
+        static let hotkeyModifiers: UInt = 0x080000  // Option only
+        static let hotkeyKeyCode: UInt16 = 49        // Space key
     }
 
     // MARK: - Published Properties
