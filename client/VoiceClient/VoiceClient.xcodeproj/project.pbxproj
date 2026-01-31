@@ -11,9 +11,11 @@
 		2BA099087DF49EE08C7E813E /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 134200AFDE7C812E8BC81750 /* AppState.swift */; };
 		6503CD601B53BE51654B7B2D /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5911DC29831C70EC4494C7BE /* SettingsView.swift */; };
 		B904F88192AD3C1E97F31CA6 /* VoiceClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52386EF7B1CDE58A6F14B834 /* VoiceClientApp.swift */; };
+		E2647972CEE4A979ECEA5C05 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0EEBB0CFC5934EF000B0BB94 /* AppSettings.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0EEBB0CFC5934EF000B0BB94 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		134200AFDE7C812E8BC81750 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		3B77B264952B5C4EC5533C7D /* VoiceClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VoiceClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		52386EF7B1CDE58A6F14B834 /* VoiceClientApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoiceClientApp.swift; sourceTree = "<group>"; };
@@ -37,9 +39,18 @@
 				134200AFDE7C812E8BC81750 /* AppState.swift */,
 				7BE1B540B99D4478E82A1AA3 /* VoiceClient.entitlements */,
 				52386EF7B1CDE58A6F14B834 /* VoiceClientApp.swift */,
+				85737226CB4E82D9F3AE737F /* Settings */,
 				FB99EC96B88C998E4143E1EB /* Views */,
 			);
 			path = VoiceClient;
+			sourceTree = "<group>";
+		};
+		85737226CB4E82D9F3AE737F /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				0EEBB0CFC5934EF000B0BB94 /* AppSettings.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		AE409D929888AE90B063F824 = {
@@ -118,6 +129,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E2647972CEE4A979ECEA5C05 /* AppSettings.swift in Sources */,
 				2BA099087DF49EE08C7E813E /* AppState.swift in Sources */,
 				15ED57A58A48D98A4DE53A52 /* MenuBarView.swift in Sources */,
 				6503CD601B53BE51654B7B2D /* SettingsView.swift in Sources */,
