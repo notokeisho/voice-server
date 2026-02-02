@@ -62,9 +62,6 @@ class AppCoordinator: ObservableObject {
     /// The previously active application (for focus restoration after paste).
     private var previousApp: NSRunningApplication?
 
-    /// Whether the current recording was triggered from the menu bar UI.
-    private var wasTriggeredFromMenuBar = false
-
     private var isSetup = false
 
     private init() {}
@@ -123,7 +120,6 @@ class AppCoordinator: ObservableObject {
         if let currentApp = NSWorkspace.shared.frontmostApplication,
            currentApp.bundleIdentifier != Bundle.main.bundleIdentifier {
             previousApp = currentApp
-            print("📱 [Focus] Initial previousApp: \(currentApp.localizedName ?? "unknown")")
         }
 
         // Track the previously active app (excluding VoiceClient itself)
@@ -139,7 +135,6 @@ class AppCoordinator: ObservableObject {
             }
             Task { @MainActor in
                 self?.previousApp = app
-                print("📱 [Focus] previousApp updated: \(app.localizedName ?? "unknown")")
             }
         }
     }
@@ -181,13 +176,11 @@ class AppCoordinator: ObservableObject {
 
     /// Start recording manually (called from UI button).
     func startRecordingFromUI() {
-        wasTriggeredFromMenuBar = true
         handleHotkeyDown()
     }
 
     /// Stop recording manually (called from UI button).
     func stopRecordingFromUI() {
-        wasTriggeredFromMenuBar = true
         handleHotkeyUp()
     }
 
@@ -202,18 +195,12 @@ class AppCoordinator: ObservableObject {
                 // Send audio to server for transcription
                 let response = try await apiClient.transcribe(audioURL: url)
 
-                // Reset the menu bar trigger flag
-                self.wasTriggeredFromMenuBar = false
-
                 // Close menu bar window if open (orderOut does nothing if not open)
                 NSApp.keyWindow?.orderOut(nil)
 
                 // Restore focus to the previous app before pasting
                 if let app = self.previousApp {
-                    let success = app.activate(options: [.activateIgnoringOtherApps, .activateAllWindows])
-                    print("📱 [Focus] Restoring focus to: \(app.localizedName ?? "unknown"), success: \(success)")
-                } else {
-                    print("📱 [Focus] WARNING: previousApp is nil!")
+                    app.activate(options: [.activateIgnoringOtherApps, .activateAllWindows])
                 }
 
                 // Wait for focus to be restored, then paste
