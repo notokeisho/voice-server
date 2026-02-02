@@ -110,7 +110,7 @@ struct AccountSettingsView: View {
                         }
 
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(user.githubId)
+                            Text(user.githubUsername ?? user.githubId)
                                 .font(.headline)
 
                             HStack(spacing: 4) {

@@ -18,6 +18,7 @@ class UserResponse(BaseModel):
 
     id: int
     github_id: str
+    github_username: str | None
     github_avatar: str | None
     is_admin: bool
     created_at: datetime

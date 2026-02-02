@@ -109,6 +109,7 @@ async def callback(request: Request):
     from app.models.whitelist import is_whitelisted
 
     github_id = str(user_info.get("id"))
+    github_username = user_info.get("login")
     github_avatar = user_info.get("avatar_url")
 
     # Check whitelist
@@ -123,14 +124,24 @@ async def callback(request: Request):
         user = result.scalar_one_or_none()
 
         if user is None:
-            user = User(github_id=github_id, github_avatar=github_avatar)
+            user = User(
+                github_id=github_id,
+                github_username=github_username,
+                github_avatar=github_avatar
+            )
             session.add(user)
             await session.commit()
             await session.refresh(user)
         else:
-            # Update avatar if changed
+            # Update username and avatar if changed
+            needs_update = False
+            if user.github_username != github_username:
+                user.github_username = github_username
+                needs_update = True
             if user.github_avatar != github_avatar:
                 user.github_avatar = github_avatar
+                needs_update = True
+            if needs_update:
                 await session.commit()
 
         # Create JWT token

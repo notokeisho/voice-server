@@ -29,12 +29,14 @@ enum AuthState: Equatable {
 struct User: Codable, Identifiable {
     let id: Int
     let githubId: String
+    let githubUsername: String?
     let githubAvatar: String?
     let isAdmin: Bool
 
     enum CodingKeys: String, CodingKey {
         case id
         case githubId = "github_id"
+        case githubUsername = "github_username"
         case githubAvatar = "github_avatar"
         case isAdmin = "is_admin"
     }

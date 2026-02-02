@@ -54,7 +54,7 @@ struct MenuBarView: View {
 
                 if authService.isAuthenticated {
                     if let user = authService.currentUser {
-                        Text(user.githubId)
+                        Text(user.githubUsername ?? user.githubId)
                             .font(.caption2)
                             .foregroundColor(.secondary)
                     } else {
