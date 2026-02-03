@@ -3,17 +3,24 @@ import { Button } from '@/components/ui/button'
 import { removeToken, type User } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { LanguageSwitcher } from '@/lib/i18n'
+import { LayoutDashboard, Users, UserCheck, BookOpen, type LucideIcon } from 'lucide-react'
 
 interface LayoutProps {
   children: React.ReactNode
   user: User | null
 }
 
-const navItems = [
-  { path: '/', label: 'ダッシュボード', icon: '📊' },
-  { path: '/users', label: 'ユーザー管理', icon: '👥' },
-  { path: '/whitelist', label: 'ホワイトリスト', icon: '✅' },
-  { path: '/dictionary', label: 'グローバル辞書', icon: '📖' },
+interface NavItem {
+  path: string
+  label: string
+  icon: LucideIcon
+}
+
+const navItems: NavItem[] = [
+  { path: '/', label: 'ダッシュボード', icon: LayoutDashboard },
+  { path: '/users', label: 'ユーザー管理', icon: Users },
+  { path: '/whitelist', label: 'ホワイトリスト', icon: UserCheck },
+  { path: '/dictionary', label: 'グローバル辞書', icon: BookOpen },
 ]
 
 export function Layout({ children, user }: LayoutProps) {
@@ -71,7 +78,7 @@ export function Layout({ children, user }: LayoutProps) {
                     location.pathname === item.path && 'bg-gray-100 font-medium'
                   )}
                 >
-                  <span>{item.icon}</span>
+                  <item.icon className="w-5 h-5" />
                   <span>{item.label}</span>
                 </Link>
               </li>
