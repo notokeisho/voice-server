@@ -4,7 +4,7 @@
 .swiftpm/
 
 # Xcode
-VoiceClient.xcodeproj/xcuserdata/
+VoxType.xcodeproj/xcuserdata/
 *.xcuserstate
 
 # Build artifacts
