@@ -359,7 +359,7 @@ struct HotkeySettingsView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Accessibility access required")
                                 .fontWeight(.medium)
-                            Text("VoiceClient needs accessibility access to detect global hotkeys")
+                            Text("VoxType needs accessibility access to detect global hotkeys")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
@@ -376,7 +376,7 @@ struct HotkeySettingsView: View {
                 }
 
                 if !hotkeyManager.hasAccessibilityPermission {
-                    Text("Go to System Settings > Privacy & Security > Accessibility and enable VoiceClient")
+                    Text("Go to System Settings > Privacy & Security > Accessibility and enable VoxType")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -884,14 +884,14 @@ struct AboutView: View {
                     .font(.system(size: 64))
                     .foregroundColor(.accentColor)
 
-                Text("VoiceClient")
+                Text("VoxType")
                     .font(.title)
                     .fontWeight(.bold)
 
                 Text("Version \(appVersion) (\(buildNumber))")
                     .foregroundColor(.secondary)
 
-                Text("Voice-to-text client for KumaKuma AI")
+                Text("Voice to Text")
                     .font(.caption)
                     .foregroundColor(.secondary)
 
@@ -922,7 +922,7 @@ struct AboutView: View {
                 }
                 .font(.caption)
 
-                Text("© 2025 KumaKuma AI")
+                Text("© 2025 VoxType")
                     .font(.caption2)
                     .foregroundColor(.secondary)
 
