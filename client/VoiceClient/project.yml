@@ -1,6 +1,6 @@
-name: VoiceClient
+name: VoxType
 options:
-  bundleIdPrefix: com.kumakuma
+  bundleIdPrefix: com.voxtype
   deploymentTarget:
     macOS: "13.0"
   xcodeVersion: "15.0"
@@ -15,7 +15,7 @@ settings:
     SWIFT_VERSION: "5.9"
 
 targets:
-  VoiceClient:
+  VoxType:
     type: application
     platform: macOS
     sources:
@@ -25,7 +25,7 @@ targets:
           - Info.plist
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.kumakuma.voiceclient
+        PRODUCT_BUNDLE_IDENTIFIER: com.voxtype.app
         INFOPLIST_FILE: VoiceClient/Info.plist
         CODE_SIGN_ENTITLEMENTS: VoiceClient/VoiceClient.entitlements
         LD_RUNPATH_SEARCH_PATHS: "@executable_path/../Frameworks"
@@ -36,15 +36,15 @@ targets:
     info:
       path: VoiceClient/Info.plist
       properties:
-        CFBundleDisplayName: VoiceClient
-        CFBundleName: VoiceClient
-        NSMicrophoneUsageDescription: VoiceClient needs microphone access for voice-to-text transcription.
-        NSAccessibilityUsageDescription: VoiceClient needs accessibility access to monitor global hotkeys for voice recording.
+        CFBundleDisplayName: VoxType
+        CFBundleName: VoxType
+        NSMicrophoneUsageDescription: VoxType needs microphone access for voice-to-text transcription.
+        NSAccessibilityUsageDescription: VoxType needs accessibility access to monitor global hotkeys for voice recording.
         LSUIElement: true
         CFBundleURLTypes:
-          - CFBundleURLName: com.kumakuma.voiceclient
+          - CFBundleURLName: com.voxtype.app
             CFBundleURLSchemes:
-              - voiceclient
+              - voxtype
     entitlements:
       path: VoiceClient/VoiceClient.entitlements
       properties:
