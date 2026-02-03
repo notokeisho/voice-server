@@ -60,7 +60,7 @@ voice-server/
 | `GITHUB_CLIENT_SECRET` | Yes | GitHub OAuth App Client Secret | `xxxxxxxxxxxxxxxx` |
 | `OPENAI_API_KEY` | No | OpenAI API Key（将来の拡張用） | `sk-xxxxxxxx` |
 | `WHISPER_SERVER_URL` | No | whisper.cppサーバーURL | `http://localhost:8080` |
-| `APP_NAME` | No | アプリケーション名 | `KumaKuma AI` |
+| `APP_NAME` | No | アプリケーション名 | `VoxType` |
 | `DEBUG` | No | デバッグモード | `true` / `false` |
 
 ### サーバー起動
