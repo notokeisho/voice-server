@@ -1,5 +1,5 @@
 [project]
-name = "voice-server"
+name = "voxtype-server"
 version = "0.1.0"
 description = "Voice recognition server using whisper.cpp"
 readme = "README.md"
