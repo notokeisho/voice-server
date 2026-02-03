@@ -11,7 +11,7 @@ services:
       - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
       - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
       - WHISPER_SERVER_URL=http://whisper:8080
-      - APP_NAME=KumaKuma AI Voice Server
+      - APP_NAME=VoxType
       - DEBUG=false
     volumes:
       - ./data:/app/data
@@ -22,8 +22,8 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      - POSTGRES_DB=${POSTGRES_DB:-voice_server}
-      - POSTGRES_USER=${POSTGRES_USER:-voice}
+      - POSTGRES_DB=${POSTGRES_DB:-voxtype}
+      - POSTGRES_USER=${POSTGRES_USER:-voxtype}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
