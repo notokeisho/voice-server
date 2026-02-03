@@ -2,7 +2,7 @@ import SwiftUI
 import Combine
 import AVFoundation
 
-/// Application state enumeration representing different states of the voice client.
+/// Application state enumeration representing different states of VoxType.
 enum AppStatus: Equatable {
     case idle           // Waiting for user action
     case recording      // Currently recording audio
