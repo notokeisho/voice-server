@@ -133,6 +133,7 @@ export async function getStatus(): Promise<StatusResponse> {
 export interface User {
   id: number
   github_id: string
+  github_username: string | null
   github_avatar: string | null
   is_admin: boolean
   created_at: string

@@ -52,7 +52,7 @@ export function Layout({ children, user }: LayoutProps) {
                         className="w-8 h-8 rounded-full"
                       />
                     )}
-                    <span className="text-sm text-gray-700">{user.github_id}</span>
+                    <span className="text-sm text-gray-700">{user.github_username || user.github_id}</span>
                   </div>
                   <Button variant="outline" size="sm" onClick={handleLogout}>
                     ログアウト
