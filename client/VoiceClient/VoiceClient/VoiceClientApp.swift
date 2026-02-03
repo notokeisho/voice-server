@@ -1,9 +1,9 @@
 import SwiftUI
 
-/// Main application entry point for VoiceClient.
+/// Main application entry point for VoxType.
 /// This is a menu bar application that provides voice-to-text functionality.
 @main
-struct VoiceClientApp: App {
+struct VoxTypeApp: App {
     @StateObject private var appState = AppState()
     @StateObject private var authService = AuthService.shared
     @StateObject private var hotkeyManager = HotkeyManager.shared
@@ -122,13 +122,13 @@ class AppCoordinator: ObservableObject {
     }
 
     private func setupPreviousAppTracking() {
-        // Initialize with current frontmost app (if not VoiceClient)
+        // Initialize with current frontmost app (if not VoxType)
         if let currentApp = NSWorkspace.shared.frontmostApplication,
            currentApp.bundleIdentifier != Bundle.main.bundleIdentifier {
             previousApp = currentApp
         }
 
-        // Track the previously active app (excluding VoiceClient itself)
+        // Track the previously active app (excluding VoxType itself)
         // This is used to restore focus before pasting transcribed text
         NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didActivateApplicationNotification,
