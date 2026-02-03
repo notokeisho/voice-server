@@ -227,7 +227,7 @@ struct MenuBarView: View {
                 .padding(.vertical, 4)
 
             Button(action: quitApp) {
-                Label("Quit VoiceClient", systemImage: "power")
+                Label("Quit VoxType", systemImage: "power")
             }
             .keyboardShortcut("q", modifiers: .command)
         }
