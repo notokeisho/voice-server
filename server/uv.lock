@@ -1036,7 +1036,7 @@ wheels = [
 ]
 
 [[package]]
-name = "voice-server"
+name = "voxtype-server"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
