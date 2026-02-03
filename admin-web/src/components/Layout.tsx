@@ -35,7 +35,6 @@ export function Layout({ children, user }: LayoutProps) {
               VoiceServer Admin
             </h1>
             <div className="flex items-center gap-4">
-              <LanguageSwitcher />
               {user && (
                 <>
                   <div className="flex items-center gap-2">
@@ -53,6 +52,7 @@ export function Layout({ children, user }: LayoutProps) {
                   </Button>
                 </>
               )}
+              <LanguageSwitcher />
             </div>
           </div>
         </div>
