@@ -14,16 +14,16 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 async def _handle_login(request: Request):
-    """Common login handler for both VoiceClient and admin-web.
+    """Common login handler for both VoxType and admin-web.
 
     Query Parameters:
-        callback: The client's callback URL scheme (e.g., voiceclient://callback) - used by VoiceClient
+        callback: The client's callback URL scheme (e.g., voxtype://callback) - used by VoxType
         redirect_uri: The web callback URL (e.g., http://localhost:5173/auth/callback) - used by admin-web
 
     Returns:
         RedirectResponse to GitHub OAuth authorization URL
     """
-    # Support both parameter names: callback (VoiceClient) and redirect_uri (admin-web)
+    # Support both parameter names: callback (VoxType) and redirect_uri (admin-web)
     client_callback = request.query_params.get("callback", "")
     if not client_callback:
         client_callback = request.query_params.get("redirect_uri", "")
@@ -35,10 +35,10 @@ async def _handle_login(request: Request):
     return await github.authorize_redirect(request, redirect_uri)
 
 
-# VoiceClient uses /auth/github/login
+# VoxType uses /auth/github/login
 @router.get("/github/login")
 async def github_login(request: Request):
-    """Redirect to GitHub OAuth login page (VoiceClient endpoint)."""
+    """Redirect to GitHub OAuth login page (VoxType endpoint)."""
     return await _handle_login(request)
 
 
