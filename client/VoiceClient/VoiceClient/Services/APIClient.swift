@@ -11,7 +11,7 @@ struct TranscribeResponse: Codable {
     }
 }
 
-/// API client for communicating with the voice server.
+/// API client for communicating with VoxType server.
 @MainActor
 class APIClient: ObservableObject {
     /// Shared instance.
