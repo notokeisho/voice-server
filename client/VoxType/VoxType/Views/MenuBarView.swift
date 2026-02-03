@@ -201,17 +201,10 @@ struct MenuBarView: View {
 
     private var menuItems: some View {
         VStack(spacing: 0) {
-            if #available(macOS 14.0, *) {
-                SettingsLink {
-                    Label("Settings...", systemImage: "gear")
-                }
-                .keyboardShortcut(",", modifiers: .command)
-            } else {
-                Button(action: openSettings) {
-                    Label("Settings...", systemImage: "gear")
-                }
-                .keyboardShortcut(",", modifiers: .command)
+            Button(action: openSettings) {
+                Label("Settings...", systemImage: "gear")
             }
+            .keyboardShortcut(",", modifiers: .command)
 
             if authService.isAuthenticated {
                 Button(action: logout) {
@@ -237,10 +230,8 @@ struct MenuBarView: View {
     // MARK: - Actions
 
     private func openSettings() {
-        // Fallback for macOS 13
-        if #available(macOS 13.0, *) {
-            NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
-        }
+        NSApp.activate(ignoringOtherApps: true)
+        NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
     }
 
     private func login() {
