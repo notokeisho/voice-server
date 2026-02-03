@@ -201,10 +201,8 @@ struct MenuBarView: View {
 
     private var menuItems: some View {
         VStack(spacing: 0) {
-            Button(action: openSettings) {
-                Label("Settings...", systemImage: "gear")
-            }
-            .keyboardShortcut(",", modifiers: .command)
+            settingsButton
+                .keyboardShortcut(",", modifiers: .command)
 
             if authService.isAuthenticated {
                 Button(action: logout) {
@@ -227,12 +225,40 @@ struct MenuBarView: View {
         .buttonStyle(MenuButtonStyle())
     }
 
-    // MARK: - Actions
+    @ViewBuilder
+    private var settingsButton: some View {
+        if #available(macOS 14.0, *) {
+            SettingsLink {
+                Label("Settings...", systemImage: "gear")
+            }
+            .simultaneousGesture(TapGesture().onEnded {
+                bringSettingsToFront()
+            })
+        } else {
+            Button(action: openSettingsLegacy) {
+                Label("Settings...", systemImage: "gear")
+            }
+        }
+    }
 
-    private func openSettings() {
+    // MARK: - Settings
+
+    private func openSettingsLegacy() {
         NSApp.activate(ignoringOtherApps: true)
         NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
+        bringSettingsToFront()
     }
+
+    private func bringSettingsToFront() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            NSApp.activate(ignoringOtherApps: true)
+            for window in NSApp.windows where window.isVisible {
+                window.makeKeyAndOrderFront(nil)
+            }
+        }
+    }
+
+    // MARK: - Actions
 
     private func login() {
         authService.login()
