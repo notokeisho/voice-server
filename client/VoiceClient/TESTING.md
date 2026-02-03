@@ -1,4 +1,4 @@
-# VoiceClient 手動テスト手順書
+# VoxType 手動テスト手順書
 
 ## 前提条件
 
@@ -53,13 +53,13 @@ docker compose up whisper
 
 1. Xcode プロジェクトを生成
 ```bash
-cd client/VoiceClient
+cd client/VoxType
 xcodegen generate
 ```
 
 2. アプリをビルド・実行
 ```bash
-open VoiceClient.xcodeproj
+open VoxType.xcodeproj
 # Xcode で Run (Cmd+R)
 ```
 
@@ -78,7 +78,7 @@ open VoiceClient.xcodeproj
 - [ ] Settings > Hotkey タブを開く
 - [ ] アクセシビリティ権限が未許可の場合、警告が表示される
 - [ ] 「Grant Access」ボタンをクリックすると、システム設定が開く
-- [ ] VoiceClient を許可リストに追加
+- [ ] VoxType を許可リストに追加
 - [ ] アプリを再起動して権限が有効になることを確認
 
 ### 3. ログインテスト
@@ -203,13 +203,13 @@ AppState.completeTranscription
 ### ホットキーが反応しない
 
 1. システム設定 > プライバシーとセキュリティ > アクセシビリティ
-2. VoiceClient が許可されているか確認
+2. VoxType が許可されているか確認
 3. アプリを再起動
 
 ### 録音できない
 
 1. システム設定 > プライバシーとセキュリティ > マイク
-2. VoiceClient が許可されているか確認
+2. VoxType が許可されているか確認
 
 ### サーバーに接続できない
 
