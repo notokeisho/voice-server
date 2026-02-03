@@ -1,5 +1,5 @@
 # ===========================================
-# Voice Server - Local Development
+# VoxType - Local Development
 # ===========================================
 
 .PHONY: help db whisper backend up down clean migrate logs
