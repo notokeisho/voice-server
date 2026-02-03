@@ -14,7 +14,7 @@ from app.services.whisper_client import WhisperError, whisper_client
 router = APIRouter(prefix="/api", tags=["transcribe"])
 
 # Temporary directory for audio files
-TEMP_DIR = Path(tempfile.gettempdir()) / "voice-server"
+TEMP_DIR = Path(tempfile.gettempdir()) / "voxtype"
 
 
 def ensure_temp_dir():
