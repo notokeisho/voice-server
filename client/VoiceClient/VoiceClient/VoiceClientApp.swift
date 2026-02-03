@@ -85,6 +85,12 @@ class AppCoordinator: ObservableObject {
         // Check auth status and request permissions on launch
         Task {
             await authService.checkAuthStatus()
+
+            // Refresh token if needed (extends expiration for active users)
+            if authService.isAuthenticated {
+                await authService.refreshIfNeeded()
+            }
+
             _ = await NotificationManager.shared.requestAuthorization()
 
             // Request microphone permission on launch to avoid dialog during recording
@@ -210,6 +216,11 @@ class AppCoordinator: ObservableObject {
                 clipboardManager.pasteText(response.text) {
                     Task { @MainActor in
                         appState.completeTranscription(text: response.text)
+
+                        // Refresh token if needed (background, non-blocking)
+                        Task {
+                            await AuthService.shared.refreshIfNeeded()
+                        }
                     }
                 }
 

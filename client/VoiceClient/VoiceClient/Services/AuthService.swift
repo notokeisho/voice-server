@@ -191,9 +191,9 @@ class AuthService: NSObject, ObservableObject {
     func refreshIfNeeded() async {
         guard let token = self.token else { return }
 
-        // Refresh if token expires within 1 hour
+        // Refresh if token expires within 3 days (259200 seconds)
         if let payload = decodeJWTPayload(token),
-           payload.exp - Date().timeIntervalSince1970 < 3600 {
+           payload.exp - Date().timeIntervalSince1970 < 259200 {
             await refreshToken()
         }
     }
@@ -302,23 +302,32 @@ class AuthService: NSObject, ObservableObject {
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
 
-            guard let httpResponse = response as? HTTPURLResponse,
-                  httpResponse.statusCode == 200 else {
+            guard let httpResponse = response as? HTTPURLResponse else {
                 return
             }
 
-            struct RefreshResponse: Codable {
-                let accessToken: String
+            switch httpResponse.statusCode {
+            case 200:
+                // Success: save new token
+                struct RefreshResponse: Codable {
+                    let accessToken: String
 
-                enum CodingKeys: String, CodingKey {
-                    case accessToken = "access_token"
+                    enum CodingKeys: String, CodingKey {
+                        case accessToken = "access_token"
+                    }
                 }
-            }
 
-            let refreshResponse = try JSONDecoder().decode(RefreshResponse.self, from: data)
-            KeychainHelper.save(refreshResponse.accessToken, forKey: KeychainHelper.tokenKey)
+                let refreshResponse = try JSONDecoder().decode(RefreshResponse.self, from: data)
+                KeychainHelper.save(refreshResponse.accessToken, forKey: KeychainHelper.tokenKey)
+            case 401, 403:
+                // Token invalid or user not whitelisted: logout
+                logout()
+            default:
+                // Other errors: silently fail, will retry on next check
+                break
+            }
         } catch {
-            // Silently fail, will retry on next check
+            // Network error: silently fail, will retry on next check
         }
     }
 

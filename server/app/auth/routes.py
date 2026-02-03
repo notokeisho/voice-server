@@ -2,10 +2,13 @@
 
 from urllib.parse import urlencode
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import RedirectResponse
 
+from app.auth.dependencies import get_current_user
+from app.auth.jwt import create_jwt_token
 from app.auth.oauth import oauth
+from app.models.user import User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -148,6 +151,25 @@ async def callback(request: Request):
         jwt_token = create_jwt_token(user_id=user.id, github_id=github_id)
 
     return redirect_with_token(jwt_token)
+
+
+@router.post("/refresh")
+async def refresh_token(
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    """Refresh the current user's JWT token.
+
+    Returns a new JWT token with extended expiration.
+    The current token must be valid and the user must still be whitelisted.
+
+    Returns:
+        dict: New access token and token type
+    """
+    new_token = create_jwt_token(current_user.id, current_user.github_id)
+    return {
+        "access_token": new_token,
+        "token_type": "bearer",
+    }
 
 
 @router.get("/error")
