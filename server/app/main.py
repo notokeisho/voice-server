@@ -1,5 +1,7 @@
 """FastAPI application entry point."""
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
@@ -13,11 +15,23 @@ from app.api.protected import router as api_router
 from app.api.status import router as status_router
 from app.api.transcribe import router as transcribe_router
 from app.auth.routes import router as auth_router
+from app.bootstrap import ensure_initial_admin
 from app.config import settings
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan event handler."""
+    # Startup
+    await ensure_initial_admin()
+    yield
+    # Shutdown
+
 
 app = FastAPI(
     title=settings.app_name,
     debug=settings.debug,
+    lifespan=lifespan,
 )
 
 # Add CORS middleware for admin-web
