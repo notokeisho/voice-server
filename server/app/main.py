@@ -38,7 +38,11 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",  # admin-web dev server
+        "http://localhost:5173",  # admin-web dev server (default)
+        "http://localhost:5174",  # admin-web dev server (alternate)
+        "http://localhost:5175",  # admin-web dev server (alternate)
+        "http://localhost:5176",  # admin-web dev server (alternate)
+        "http://localhost:5177",  # admin-web dev server (alternate)
         "http://localhost:3000",  # admin-web production
     ],
     allow_credentials=True,
