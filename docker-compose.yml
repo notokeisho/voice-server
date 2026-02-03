@@ -11,7 +11,7 @@ services:
       - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
       - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - APP_NAME=KumaKuma AI Voice Server
+      - APP_NAME=VoxType
       - DEBUG=false
     volumes:
       - ./data:/app/data
