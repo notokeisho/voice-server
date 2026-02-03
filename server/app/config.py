@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
 
     # Application
-    app_name: str = "Voice Server"
+    app_name: str = "VoxType"
     debug: bool = False
 
     # Database
