@@ -201,6 +201,7 @@ struct AccountSettingsView: View {
 /// General settings tab.
 struct GeneralSettingsView: View {
     @EnvironmentObject var settings: AppSettings
+    @EnvironmentObject var localization: LocalizationManager
     @State private var connectionStatus: ConnectionStatus = .unknown
     @State private var isTestingConnection = false
 
@@ -234,7 +235,7 @@ struct GeneralSettingsView: View {
             // Server settings
             Section {
                 HStack {
-                    TextField("Server URL", text: $settings.serverURL)
+                    TextField(localization.t("general.serverURL"), text: $settings.serverURL)
                         .textFieldStyle(.roundedBorder)
 
                     // Validation indicator
@@ -255,26 +256,26 @@ struct GeneralSettingsView: View {
                     Spacer()
 
                     // Test connection button
-                    Button("Test Connection") {
+                    Button(localization.t("general.testConnection")) {
                         testConnection()
                     }
                     .disabled(isTestingConnection || !settings.isServerURLValid)
                 }
             } header: {
-                Text("Server")
+                Text(localization.t("general.server"))
             }
 
             // Startup settings
             Section {
-                Toggle("Launch at Login", isOn: $settings.launchAtLogin)
+                Toggle(localization.t("general.launchAtLogin"), isOn: $settings.launchAtLogin)
                     .toggleStyle(.switch)
             } header: {
-                Text("Startup")
+                Text(localization.t("general.startup"))
             }
 
             // Reset settings
             Section {
-                Button("Reset to Defaults") {
+                Button(localization.t("general.resetToDefaults")) {
                     settings.resetToDefaults()
                     connectionStatus = .unknown
                 }
@@ -288,13 +289,13 @@ struct GeneralSettingsView: View {
     private var connectionStatusText: String {
         switch connectionStatus {
         case .unknown:
-            return "Not tested"
+            return localization.t("general.connectionNotTested")
         case .testing:
-            return "Testing..."
+            return localization.t("general.connectionTesting")
         case .connected:
-            return "Connected"
+            return localization.t("general.connectionConnected")
         case .failed(let message):
-            return "Failed: \(message)"
+            return localization.t("general.connectionFailed", params: ["message": message])
         }
     }
 
