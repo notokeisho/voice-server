@@ -107,6 +107,7 @@ async def callback(request: Request):
     from sqlalchemy import select
 
     from app.auth.jwt import create_jwt_token
+    from app.config import settings
     from app.database import async_session_factory
     from app.models.user import User
     from app.models.whitelist import is_whitelisted
@@ -127,10 +128,16 @@ async def callback(request: Request):
         user = result.scalar_one_or_none()
 
         if user is None:
+            # Check if this is the initial admin
+            is_initial_admin = (
+                settings.initial_admin_github_id
+                and github_id == settings.initial_admin_github_id
+            )
             user = User(
                 github_id=github_id,
                 github_username=github_username,
-                github_avatar=github_avatar
+                github_avatar=github_avatar,
+                is_admin=is_initial_admin,
             )
             session.add(user)
             await session.commit()
