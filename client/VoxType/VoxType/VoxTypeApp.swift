@@ -154,7 +154,7 @@ class AppCoordinator: ObservableObject {
 
         // Only start recording if authenticated and idle
         guard authService.isAuthenticated else {
-            appState.setError("Please log in to use voice transcription")
+            appState.setError(LocalizationManager.shared.t("error.loginRequired"))
             return
         }
 
