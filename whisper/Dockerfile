@@ -29,6 +29,11 @@ COPY --from=builder /build/whisper.cpp/build/src/libwhisper.so* /usr/local/lib/
 COPY --from=builder /build/whisper.cpp/build/ggml/src/libggml*.so* /usr/local/lib/
 COPY start.sh /app/
 
+# Download VAD model for voice activity detection
+RUN mkdir -p /app/models && \
+    curl -L -o /app/models/ggml-silero-vad.bin \
+    https://huggingface.co/ggml-org/whisper-vad/resolve/main/ggml-silero-v5.1.2.bin
+
 RUN ldconfig && chmod +x /app/start.sh /app/whisper-server
 
 EXPOSE 8080
