@@ -11,6 +11,18 @@ from app.database import async_session_factory
 from app.models.global_dictionary import get_global_entries
 from app.models.user_dictionary import get_user_entries
 
+# Whisper non-speech annotation patterns to remove
+# These are added by Whisper when it detects background sounds
+WHISPER_ANNOTATIONS = re.compile(
+    r'[（(]'  # Opening bracket (Japanese or ASCII)
+    r'(?:音楽?|エンディング|拍手|笑い?|笑声|咳|ため息|'
+    r'沈黙|雑音|ノイズ|BGM|SE|効果音|歌|'
+    r'music|applause|laughter|cough|sigh|silence|noise|sound)'
+    r'[）)]',  # Closing bracket (Japanese or ASCII)
+    re.IGNORECASE
+)
+
+
 # Japanese filler words to remove (safe patterns only)
 # Excluded: あの, その, こう, うん, ほら, ね, さ (may break words like あの人, その通り, こういう)
 JAPANESE_FILLERS = [
@@ -21,6 +33,27 @@ JAPANESE_FILLERS = [
     "まあ", "まぁ",
     "なんか",
 ]
+
+
+def remove_whisper_annotations(text: str) -> str:
+    """Remove Whisper non-speech annotations from text.
+
+    Whisper adds annotations like (音楽), (エンディング), (拍手) when it
+    detects background sounds. This function removes them.
+
+    Args:
+        text: The text to process
+
+    Returns:
+        The text with Whisper annotations removed
+    """
+    if not text:
+        return text
+
+    result = WHISPER_ANNOTATIONS.sub('', text)
+    # Clean up extra whitespace that may result from removal
+    result = re.sub(r'\s+', ' ', result).strip()
+    return result
 
 
 def remove_fillers(text: str) -> str:
@@ -73,8 +106,11 @@ async def apply_dictionary(text: str, user_id: int) -> str:
     if not text:
         return text
 
-    # Step 1: Remove filler words first
-    result = remove_fillers(text)
+    # Step 1: Remove Whisper annotations first (音楽), (エンディング) etc.
+    result = remove_whisper_annotations(text)
+
+    # Step 2: Remove filler words
+    result = remove_fillers(result)
 
     async with async_session_factory() as session:
         # Get dictionary entries
