@@ -25,8 +25,10 @@ import {
   deleteGlobalDictionaryEntry,
   type DictionaryEntry,
 } from '@/lib/api'
+import { useLanguage } from '@/lib/i18n'
 
 export function DictionaryPage() {
+  const { t, tWithParams, language } = useLanguage()
   const [entries, setEntries] = useState<DictionaryEntry[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -86,7 +88,7 @@ export function DictionaryPage() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('ja-JP')
+    return new Date(dateString).toLocaleString(language === 'ja' ? 'ja-JP' : 'en-US')
   }
 
   if (loading) {
@@ -99,7 +101,7 @@ export function DictionaryPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6">グローバル辞書管理</h2>
+      <h2 className="text-2xl font-bold mb-6">{t('dictionary.title')}</h2>
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -111,8 +113,7 @@ export function DictionaryPage() {
       <Card className="mb-6 bg-blue-50 border-blue-200">
         <CardContent className="pt-6">
           <p className="text-blue-800">
-            グローバル辞書は全ユーザーの音声認識結果に適用されます。
-            よくある認識ミスや固有名詞の変換ルールを登録してください。
+            {t('dictionary.info')}
           </p>
         </CardContent>
       </Card>
@@ -120,30 +121,30 @@ export function DictionaryPage() {
       {/* Add new entry */}
       <Card className="mb-6">
         <CardHeader>
-          <CardTitle>エントリを追加</CardTitle>
+          <CardTitle>{t('dictionary.addTitle')}</CardTitle>
           <CardDescription>
-            認識パターンと置換後のテキストを入力してください
+            {t('dictionary.addDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleAdd} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="pattern">認識パターン</Label>
+                <Label htmlFor="pattern">{t('dictionary.pattern')}</Label>
                 <Input
                   id="pattern"
                   type="text"
-                  placeholder="例: くろーど"
+                  placeholder={t('dictionary.patternPlaceholder')}
                   value={pattern}
                   onChange={(e) => setPattern(e.target.value)}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="replacement">置換後</Label>
+                <Label htmlFor="replacement">{t('dictionary.replacement')}</Label>
                 <Input
                   id="replacement"
                   type="text"
-                  placeholder="例: Claude"
+                  placeholder={t('dictionary.replacementPlaceholder')}
                   value={replacement}
                   onChange={(e) => setReplacement(e.target.value)}
                 />
@@ -153,7 +154,7 @@ export function DictionaryPage() {
               type="submit"
               disabled={adding || !pattern.trim() || !replacement.trim()}
             >
-              {adding ? '追加中...' : '追加'}
+              {adding ? t('dictionary.adding') : t('dictionary.add')}
             </Button>
           </form>
         </CardContent>
@@ -162,19 +163,19 @@ export function DictionaryPage() {
       {/* Dictionary table */}
       <Card>
         <CardHeader>
-          <CardTitle>辞書エントリ一覧</CardTitle>
+          <CardTitle>{t('dictionary.listTitle')}</CardTitle>
           <CardDescription>
-            {entries.length} 件のエントリが登録されています
+            {tWithParams('dictionary.entryCount', { count: entries.length })}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>認識パターン</TableHead>
-                <TableHead>置換後</TableHead>
-                <TableHead>登録日時</TableHead>
-                <TableHead>操作</TableHead>
+                <TableHead>{t('dictionary.pattern')}</TableHead>
+                <TableHead>{t('dictionary.replacement')}</TableHead>
+                <TableHead>{t('dictionary.createdAt')}</TableHead>
+                <TableHead>{t('dictionary.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -189,7 +190,7 @@ export function DictionaryPage() {
                       size="sm"
                       onClick={() => setDeleteTarget(entry)}
                     >
-                      削除
+                      {t('dictionary.delete')}
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -197,7 +198,7 @@ export function DictionaryPage() {
               {entries.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center text-gray-500">
-                    辞書エントリがありません
+                    {t('dictionary.noEntries')}
                   </TableCell>
                 </TableRow>
               )}
@@ -210,21 +211,24 @@ export function DictionaryPage() {
       <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>エントリの削除</DialogTitle>
+            <DialogTitle>{t('dictionary.deleteTitle')}</DialogTitle>
             <DialogDescription>
-              「{deleteTarget?.pattern}」→「{deleteTarget?.replacement}」を削除しますか？
+              {deleteTarget && tWithParams('dictionary.deleteConfirm', {
+                pattern: deleteTarget.pattern,
+                replacement: deleteTarget.replacement,
+              })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteTarget(null)}>
-              キャンセル
+              {t('common.cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={deleting}
             >
-              {deleting ? '削除中...' : '削除'}
+              {deleting ? t('dictionary.deleting') : t('dictionary.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

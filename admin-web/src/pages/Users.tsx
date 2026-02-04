@@ -18,8 +18,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { getUsers, deleteUser, updateUser, getMe, type User } from '@/lib/api'
+import { useLanguage } from '@/lib/i18n'
 
 export function UsersPage() {
+  const { t, tWithParams, language } = useLanguage()
   const [users, setUsers] = useState<User[]>([])
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
@@ -79,7 +81,7 @@ export function UsersPage() {
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '-'
-    return new Date(dateString).toLocaleString('ja-JP')
+    return new Date(dateString).toLocaleString(language === 'ja' ? 'ja-JP' : 'en-US')
   }
 
   const getUserDisplayName = (user: User) => {
@@ -100,7 +102,7 @@ export function UsersPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6">ユーザー管理</h2>
+      <h2 className="text-2xl font-bold mb-6">{t('users.title')}</h2>
 
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -110,18 +112,18 @@ export function UsersPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>登録ユーザー一覧</CardTitle>
+          <CardTitle>{t('users.listTitle')}</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>アバター</TableHead>
-                <TableHead>ユーザー名</TableHead>
-                <TableHead>ロール</TableHead>
-                <TableHead>登録日時</TableHead>
-                <TableHead>最終ログイン</TableHead>
-                <TableHead>操作</TableHead>
+                <TableHead>{t('users.avatar')}</TableHead>
+                <TableHead>{t('users.username')}</TableHead>
+                <TableHead>{t('users.role')}</TableHead>
+                <TableHead>{t('users.createdAt')}</TableHead>
+                <TableHead>{t('users.lastLogin')}</TableHead>
+                <TableHead>{t('users.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -141,17 +143,17 @@ export function UsersPage() {
                   <TableCell className="font-medium">
                     {getUserDisplayName(user)}
                     {isCurrentUser(user) && (
-                      <span className="ml-2 text-xs text-gray-500">(自分)</span>
+                      <span className="ml-2 text-xs text-gray-500">{t('users.you')}</span>
                     )}
                   </TableCell>
                   <TableCell>
                     {user.is_admin ? (
                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        管理者
+                        {t('users.admin')}
                       </span>
                     ) : (
                       <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                        メンバー
+                        {t('users.member')}
                       </span>
                     )}
                   </TableCell>
@@ -162,11 +164,11 @@ export function UsersPage() {
                       <Button
                         variant={user.is_admin ? 'outline' : 'default'}
                         size="sm"
-                        className="w-32"
+                        className="w-36"
                         onClick={() => setRoleChangeTarget(user)}
                         disabled={isCurrentUser(user)}
                       >
-                        {user.is_admin ? 'メンバーに変更' : '管理者に変更'}
+                        {user.is_admin ? t('users.changeToMember') : t('users.changeToAdmin')}
                       </Button>
                       <Button
                         variant="destructive"
@@ -174,7 +176,7 @@ export function UsersPage() {
                         onClick={() => setDeleteTarget(user)}
                         disabled={user.is_admin}
                       >
-                        削除
+                        {t('users.delete')}
                       </Button>
                     </div>
                   </TableCell>
@@ -183,7 +185,7 @@ export function UsersPage() {
               {users.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center text-gray-500">
-                    ユーザーがいません
+                    {t('users.noUsers')}
                   </TableCell>
                 </TableRow>
               )}
@@ -196,24 +198,24 @@ export function UsersPage() {
       <Dialog open={!!roleChangeTarget} onOpenChange={() => setRoleChangeTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>ロールの変更</DialogTitle>
+            <DialogTitle>{t('users.roleChangeTitle')}</DialogTitle>
             <DialogDescription>
               {roleChangeTarget && (
                 roleChangeTarget.is_admin
-                  ? `${getUserDisplayName(roleChangeTarget)} をメンバーに変更しますか？`
-                  : `${getUserDisplayName(roleChangeTarget)} を管理者に変更しますか？`
+                  ? tWithParams('users.roleChangeToMember', { name: getUserDisplayName(roleChangeTarget) })
+                  : tWithParams('users.roleChangeToAdmin', { name: getUserDisplayName(roleChangeTarget) })
               )}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setRoleChangeTarget(null)}>
-              キャンセル
+              {t('common.cancel')}
             </Button>
             <Button
               onClick={handleRoleChange}
               disabled={changingRole}
             >
-              {changingRole ? '変更中...' : '変更'}
+              {changingRole ? t('users.changing') : t('users.change')}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -223,21 +225,21 @@ export function UsersPage() {
       <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>ユーザーの削除</DialogTitle>
+            <DialogTitle>{t('users.deleteTitle')}</DialogTitle>
             <DialogDescription>
-              {deleteTarget && getUserDisplayName(deleteTarget)} を削除しますか？この操作は取り消せません。
+              {deleteTarget && tWithParams('users.deleteConfirm', { name: getUserDisplayName(deleteTarget) })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteTarget(null)}>
-              キャンセル
+              {t('common.cancel')}
             </Button>
             <Button
               variant="destructive"
               onClick={handleDelete}
               disabled={deleting}
             >
-              {deleting ? '削除中...' : '削除'}
+              {deleting ? t('users.deleting') : t('users.delete')}
             </Button>
           </DialogFooter>
         </DialogContent>

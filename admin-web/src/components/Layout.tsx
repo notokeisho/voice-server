@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { removeToken, type User } from '@/lib/api'
 import { cn } from '@/lib/utils'
-import { LanguageSwitcher } from '@/lib/i18n'
+import { LanguageSwitcher, useLanguage } from '@/lib/i18n'
 import { LayoutDashboard, Users, UserCheck, BookOpen, type LucideIcon } from 'lucide-react'
 
 interface LayoutProps {
@@ -12,20 +12,21 @@ interface LayoutProps {
 
 interface NavItem {
   path: string
-  label: string
+  labelKey: 'nav.dashboard' | 'nav.users' | 'nav.whitelist' | 'nav.dictionary'
   icon: LucideIcon
 }
 
-const navItems: NavItem[] = [
-  { path: '/', label: 'ダッシュボード', icon: LayoutDashboard },
-  { path: '/users', label: 'ユーザー管理', icon: Users },
-  { path: '/whitelist', label: 'ホワイトリスト', icon: UserCheck },
-  { path: '/dictionary', label: 'グローバル辞書', icon: BookOpen },
+const navItemsConfig: NavItem[] = [
+  { path: '/', labelKey: 'nav.dashboard', icon: LayoutDashboard },
+  { path: '/users', labelKey: 'nav.users', icon: Users },
+  { path: '/whitelist', labelKey: 'nav.whitelist', icon: UserCheck },
+  { path: '/dictionary', labelKey: 'nav.dictionary', icon: BookOpen },
 ]
 
 export function Layout({ children, user }: LayoutProps) {
   const location = useLocation()
   const navigate = useNavigate()
+  const { t } = useLanguage()
 
   const handleLogout = () => {
     removeToken()
@@ -55,7 +56,7 @@ export function Layout({ children, user }: LayoutProps) {
                     <span className="text-sm text-gray-700">{user.github_username || user.github_id}</span>
                   </div>
                   <Button variant="outline" size="sm" onClick={handleLogout}>
-                    ログアウト
+                    {t('nav.logout')}
                   </Button>
                 </>
               )}
@@ -69,7 +70,7 @@ export function Layout({ children, user }: LayoutProps) {
         {/* Sidebar */}
         <nav className="w-64 min-h-[calc(100vh-4rem)] bg-white shadow-sm">
           <ul className="py-4">
-            {navItems.map((item) => (
+            {navItemsConfig.map((item) => (
               <li key={item.path}>
                 <Link
                   to={item.path}
@@ -79,7 +80,7 @@ export function Layout({ children, user }: LayoutProps) {
                   )}
                 >
                   <item.icon className="w-5 h-5" />
-                  <span>{item.label}</span>
+                  <span>{t(item.labelKey)}</span>
                 </Link>
               </li>
             ))}
