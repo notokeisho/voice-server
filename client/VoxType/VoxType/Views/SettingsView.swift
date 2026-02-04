@@ -330,6 +330,7 @@ struct GeneralSettingsView: View {
 /// Hotkey settings tab.
 struct HotkeySettingsView: View {
     @EnvironmentObject var settings: AppSettings
+    @EnvironmentObject var localization: LocalizationManager
     @StateObject private var hotkeyManager = HotkeyManager.shared
     @State private var isEditing = false
 
@@ -365,15 +366,15 @@ struct HotkeySettingsView: View {
                     if hotkeyManager.hasAccessibilityPermission {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(.green)
-                        Text("Accessibility access granted")
+                        Text(localization.t("hotkey.accessGranted"))
                             .foregroundColor(.secondary)
                     } else {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundColor(.orange)
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Accessibility access required")
+                            Text(localization.t("hotkey.accessRequired"))
                                 .fontWeight(.medium)
-                            Text("VoxType needs accessibility access to detect global hotkeys")
+                            Text(localization.t("hotkey.accessDescription"))
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
@@ -382,7 +383,7 @@ struct HotkeySettingsView: View {
                     Spacer()
 
                     if !hotkeyManager.hasAccessibilityPermission {
-                        Button("Grant Access") {
+                        Button(localization.t("hotkey.grantAccess")) {
                             hotkeyManager.requestAccessibilityPermission()
                         }
                         .buttonStyle(.borderedProminent)
@@ -390,18 +391,18 @@ struct HotkeySettingsView: View {
                 }
 
                 if !hotkeyManager.hasAccessibilityPermission {
-                    Text("Go to System Settings > Privacy & Security > Accessibility and enable VoxType")
+                    Text(localization.t("hotkey.accessInstructions"))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
             } header: {
-                Text("Permissions")
+                Text(localization.t("hotkey.permissions"))
             }
 
             Section {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
-                        Text("Current Hotkey")
+                        Text(localization.t("hotkey.current"))
                             .font(.headline)
                         Spacer()
                         Text(settings.hotkeyDisplayString)
@@ -413,14 +414,14 @@ struct HotkeySettingsView: View {
                     }
 
                     if !isEditing {
-                        Button("Change Hotkey") {
+                        Button(localization.t("hotkey.change")) {
                             loadCurrentSettings()
                             isEditing = true
                         }
                         .buttonStyle(.borderedProminent)
                     } else {
                         VStack(alignment: .leading, spacing: 12) {
-                            Text("Select modifiers and key")
+                            Text(localization.t("hotkey.selectModifiers"))
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
 
@@ -443,18 +444,18 @@ struct HotkeySettingsView: View {
                             }
 
                             if !hasValidModifiers {
-                                Text("At least one modifier key is required")
+                                Text(localization.t("hotkey.modifierRequired"))
                                     .font(.caption)
                                     .foregroundColor(.red)
                             }
 
                             HStack {
-                                Button("Cancel") {
+                                Button(localization.t("hotkey.cancel")) {
                                     isEditing = false
                                 }
                                 .buttonStyle(.bordered)
 
-                                Button("Save") {
+                                Button(localization.t("hotkey.save")) {
                                     saveHotkey()
                                     isEditing = false
                                 }
@@ -467,28 +468,28 @@ struct HotkeySettingsView: View {
                         .cornerRadius(8)
                     }
 
-                    Text("Hold this key combination to start recording, release to stop and transcribe.")
+                    Text(localization.t("hotkey.description"))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
             } header: {
-                Text("Voice Recording Hotkey")
+                Text(localization.t("hotkey.title"))
             }
 
             Section {
                 VStack(alignment: .leading, spacing: 8) {
-                    Label("The hotkey works globally across all applications", systemImage: "globe")
-                    Label("Hold to record, release to transcribe", systemImage: "hand.tap")
-                    Label("Recording stops automatically after 60 seconds", systemImage: "timer")
+                    Label(localization.t("hotkey.tip.global"), systemImage: "globe")
+                    Label(localization.t("hotkey.tip.holdRelease"), systemImage: "hand.tap")
+                    Label(localization.t("hotkey.tip.autoStop"), systemImage: "timer")
                 }
                 .font(.caption)
                 .foregroundColor(.secondary)
             } header: {
-                Text("How it works")
+                Text(localization.t("hotkey.howItWorks"))
             }
 
             Section {
-                Button("Reset to Default (⌃.)") {
+                Button(localization.t("hotkey.resetToDefault")) {
                     settings.hotkeyModifiers = 0x040000  // Control only
                     settings.hotkeyKeyCode = 47          // Period (.)
                 }
