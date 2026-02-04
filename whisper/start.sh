@@ -18,10 +18,14 @@ WHISPER_MODEL=${WHISPER_MODEL:-/app/models/ggml-large-v3-turbo-q8_0.bin}
 # Thread count for parallel processing (default: 8 for multi-core CPUs)
 WHISPER_THREADS=${WHISPER_THREADS:-8}
 
+# Initial prompt to encourage punctuation in Japanese output
+WHISPER_PROMPT=${WHISPER_PROMPT:-"こんにちは。今日は良い天気ですね。何かお手伝いできることはありますか？"}
+
 exec /app/whisper-server \
     --model ${WHISPER_MODEL} \
     --host 0.0.0.0 \
     --port 8080 \
     --language ${VOICE_LANGUAGE:-ja} \
     --threads ${WHISPER_THREADS} \
+    --prompt "${WHISPER_PROMPT}" \
     $VAD_OPTS
