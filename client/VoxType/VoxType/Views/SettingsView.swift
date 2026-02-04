@@ -58,6 +58,7 @@ struct SettingsView: View {
 /// Account settings tab with login/logout functionality.
 struct AccountSettingsView: View {
     @EnvironmentObject var authService: AuthService
+    @EnvironmentObject var localization: LocalizationManager
 
     var body: some View {
         Form {
@@ -67,16 +68,16 @@ struct AccountSettingsView: View {
                     HStack {
                         ProgressView()
                             .scaleEffect(0.8)
-                        Text("Checking authentication...")
+                        Text(localization.t("account.checking"))
                             .foregroundColor(.secondary)
                     }
 
                 case .notAuthenticated:
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Not logged in")
+                        Text(localization.t("account.notLoggedIn"))
                             .font(.headline)
 
-                        Text("Log in with GitHub to sync your settings and use the transcription service.")
+                        Text(localization.t("account.loginDescription"))
                             .font(.caption)
                             .foregroundColor(.secondary)
 
@@ -85,7 +86,7 @@ struct AccountSettingsView: View {
                         }) {
                             HStack {
                                 Image(systemName: "person.badge.key")
-                                Text("Log in with GitHub")
+                                Text(localization.t("account.loginButton"))
                             }
                         }
                         .buttonStyle(.borderedProminent)
@@ -95,7 +96,7 @@ struct AccountSettingsView: View {
                     HStack {
                         ProgressView()
                             .scaleEffect(0.8)
-                        Text("Logging in...")
+                        Text(localization.t("account.loggingIn"))
                             .foregroundColor(.secondary)
                     }
 
@@ -128,11 +129,11 @@ struct AccountSettingsView: View {
                             HStack(spacing: 4) {
                                 Image(systemName: "checkmark.circle.fill")
                                     .foregroundColor(.green)
-                                Text("Logged in")
+                                Text(localization.t("account.loggedIn"))
                                     .foregroundColor(.secondary)
 
                                 if user.isAdmin {
-                                    Text("(Admin)")
+                                    Text(localization.t("account.admin"))
                                         .font(.caption)
                                         .foregroundColor(.orange)
                                 }
@@ -142,7 +143,7 @@ struct AccountSettingsView: View {
 
                         Spacer()
 
-                        Button("Log out") {
+                        Button(localization.t("account.logoutButton")) {
                             authService.logout()
                         }
                         .foregroundColor(.red)
@@ -153,7 +154,7 @@ struct AccountSettingsView: View {
                         HStack {
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .foregroundColor(.red)
-                            Text("Authentication Error")
+                            Text(localization.t("account.authError"))
                                 .font(.headline)
                         }
 
@@ -161,27 +162,27 @@ struct AccountSettingsView: View {
                             .font(.caption)
                             .foregroundColor(.secondary)
 
-                        Button("Try Again") {
+                        Button(localization.t("account.tryAgain")) {
                             authService.login()
                         }
                         .buttonStyle(.borderedProminent)
                     }
                 }
             } header: {
-                Text("GitHub Account")
+                Text(localization.t("account.title"))
             }
 
             if authService.isAuthenticated {
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
-                        Label("Your data is synced with the server", systemImage: "icloud.and.arrow.up")
-                        Label("Personal dictionary is available", systemImage: "text.book.closed")
-                        Label("Voice transcription is enabled", systemImage: "waveform")
+                        Label(localization.t("account.feature.sync"), systemImage: "icloud.and.arrow.up")
+                        Label(localization.t("account.feature.dictionary"), systemImage: "text.book.closed")
+                        Label(localization.t("account.feature.transcription"), systemImage: "waveform")
                     }
                     .font(.caption)
                     .foregroundColor(.secondary)
                 } header: {
-                    Text("Account Features")
+                    Text(localization.t("account.features"))
                 }
             }
         }
