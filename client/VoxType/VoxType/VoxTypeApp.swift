@@ -243,9 +243,15 @@ struct MenuBarLabel: View {
 
     var body: some View {
         HStack(spacing: 4) {
-            Image(systemName: appState.statusIcon)
-                .symbolRenderingMode(.palette)
-                .foregroundStyle(iconColor)
+            if appState.status == .idle {
+                Image("MenuBarIcon")
+                    .renderingMode(.template)
+                    .foregroundStyle(iconColor)
+            } else {
+                Image(systemName: appState.statusIcon)
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(iconColor)
+            }
 
             // Show recording time in menu bar during recording
             if appState.status == .recording {

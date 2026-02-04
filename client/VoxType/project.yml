@@ -21,8 +21,9 @@ targets:
     sources:
       - path: VoxType
         excludes:
-          - "*.xcassets"
           - Info.plist
+    resources:
+      - path: VoxType/Assets.xcassets
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.voxtype.app
