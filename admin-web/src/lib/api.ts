@@ -78,6 +78,13 @@ export async function deleteUser(userId: number): Promise<void> {
   await apiFetch(`/admin/api/users/${userId}`, { method: 'DELETE' })
 }
 
+export async function updateUser(userId: number, isAdmin: boolean): Promise<User> {
+  return apiFetch<User>(`/admin/api/users/${userId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ is_admin: isAdmin }),
+  })
+}
+
 // Whitelist API (admin)
 export async function getWhitelist(): Promise<WhitelistEntry[]> {
   return apiFetch<WhitelistEntry[]>('/admin/api/whitelist')
