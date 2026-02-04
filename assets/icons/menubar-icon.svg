@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22">
+  <!-- 中心のコア -->
+  <circle cx="11" cy="11" r="4" fill="#000000"/>
+  <circle cx="11" cy="11" r="1.5" fill="#ffffff"/>
+
+  <!-- 螺旋アーム1（2点） -->
+  <circle cx="16" cy="8" r="2" fill="#000000"/>
+  <circle cx="18" cy="13" r="1.5" fill="#000000"/>
+
+  <!-- 螺旋アーム2（2点） -->
+  <circle cx="6" cy="14" r="2" fill="#000000"/>
+  <circle cx="4" cy="9" r="1.5" fill="#000000"/>
+</svg>

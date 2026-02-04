@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <radialGradient id="coreGradBlue" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#38bdf8"/>
+      <stop offset="60%" style="stop-color:#0ea5e9"/>
+      <stop offset="100%" style="stop-color:#0284c7"/>
+    </radialGradient>
+    <clipPath id="bgClip">
+      <rect x="32" y="32" width="960" height="960" rx="220"/>
+    </clipPath>
+  </defs>
+
+  <!-- 黒い角丸背景 -->
+  <rect x="32" y="32" width="960" height="960" rx="220" fill="#1a1a1a"/>
+
+  <g clip-path="url(#bgClip)">
+    <!-- 中心のコア -->
+    <circle cx="512" cy="512" r="90" fill="url(#coreGradBlue)"/>
+    <circle cx="512" cy="512" r="35" fill="#1a1a1a"/>
+
+    <!-- 螺旋アーム1 -->
+    <g fill="#075985">
+      <circle cx="640" cy="460" r="50"/>
+      <circle cx="740" cy="440" r="45"/>
+    </g>
+    <g fill="#0369a1">
+      <circle cx="820" cy="480" r="42"/>
+    </g>
+    <g fill="#0284c7">
+      <circle cx="860" cy="560" r="40"/>
+      <circle cx="860" cy="660" r="38"/>
+    </g>
+    <g fill="#0ea5e9">
+      <circle cx="810" cy="750" r="36"/>
+      <circle cx="720" cy="810" r="34"/>
+    </g>
+    <g fill="#38bdf8">
+      <circle cx="610" cy="840" r="32"/>
+    </g>
+
+    <!-- 螺旋アーム2 -->
+    <g fill="#075985">
+      <circle cx="384" cy="564" r="50"/>
+      <circle cx="284" cy="584" r="45"/>
+    </g>
+    <g fill="#0369a1">
+      <circle cx="204" cy="544" r="42"/>
+    </g>
+    <g fill="#0284c7">
+      <circle cx="164" cy="464" r="40"/>
+      <circle cx="164" cy="364" r="38"/>
+    </g>
+    <g fill="#0ea5e9">
+      <circle cx="214" cy="274" r="36"/>
+      <circle cx="304" cy="214" r="34"/>
+    </g>
+    <g fill="#38bdf8">
+      <circle cx="414" cy="184" r="32"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <radialGradient id="coreGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#4ade80"/>
+      <stop offset="60%" style="stop-color:#22c55e"/>
+      <stop offset="100%" style="stop-color:#16a34a"/>
+    </radialGradient>
+    <clipPath id="bgClip">
+      <rect x="32" y="32" width="960" height="960" rx="220"/>
+    </clipPath>
+  </defs>
+
+  <rect x="32" y="32" width="960" height="960" rx="220" fill="#ffffff"/>
+
+  <g clip-path="url(#bgClip)">
+    <!-- 中心のコア -->
+    <circle cx="512" cy="512" r="120" fill="url(#coreGrad)"/>
+    <circle cx="512" cy="512" r="45" fill="#ffffff"/>
+
+    <!-- 螺旋アーム1（5点、さらに大きく） -->
+    <circle cx="680" cy="455" r="70" fill="#14532d"/>
+    <circle cx="800" cy="510" r="62" fill="#166534"/>
+    <circle cx="840" cy="640" r="55" fill="#16a34a"/>
+    <circle cx="780" cy="770" r="48" fill="#22c55e"/>
+    <circle cx="650" cy="830" r="42" fill="#4ade80"/>
+
+    <!-- 螺旋アーム2（5点、さらに大きく） -->
+    <circle cx="344" cy="569" r="70" fill="#14532d"/>
+    <circle cx="224" cy="514" r="62" fill="#166534"/>
+    <circle cx="184" cy="384" r="55" fill="#16a34a"/>
+    <circle cx="244" cy="254" r="48" fill="#22c55e"/>
+    <circle cx="374" cy="194" r="42" fill="#4ade80"/>
+  </g>
+</svg>

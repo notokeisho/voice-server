@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <radialGradient id="coreGradWhite" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#fbbf24"/>
+      <stop offset="60%" style="stop-color:#f97316"/>
+      <stop offset="100%" style="stop-color:#ea580c"/>
+    </radialGradient>
+    <clipPath id="bgClipWhite">
+      <rect x="32" y="32" width="960" height="960" rx="220"/>
+    </clipPath>
+  </defs>
+
+  <!-- 白い角丸背景 -->
+  <rect x="32" y="32" width="960" height="960" rx="220" fill="#ffffff"/>
+
+  <g clip-path="url(#bgClipWhite)">
+    <!-- 中心のコア（大きめ） -->
+    <circle cx="512" cy="512" r="170" fill="url(#coreGradWhite)"/>
+    <circle cx="512" cy="512" r="65" fill="#ffffff"/>
+
+    <!-- 螺旋アーム1（2点だけ） -->
+    <circle cx="760" cy="380" r="80" fill="#c2410c"/>
+    <circle cx="850" cy="620" r="60" fill="#f97316"/>
+
+    <!-- 螺旋アーム2（2点だけ） -->
+    <circle cx="264" cy="644" r="80" fill="#c2410c"/>
+    <circle cx="174" cy="404" r="60" fill="#f97316"/>
+  </g>
+</svg>
