@@ -552,6 +552,7 @@ struct ModifierToggle: View {
 /// Dictionary settings tab with full API integration.
 struct DictionarySettingsView: View {
     @EnvironmentObject var authService: AuthService
+    @EnvironmentObject var localization: LocalizationManager
     @StateObject private var service = DictionaryService.shared
     @State private var newPattern = ""
     @State private var newReplacement = ""
@@ -596,16 +597,16 @@ struct DictionarySettingsView: View {
         .onAppear {
             loadEntries()
         }
-        .alert("Delete Entry", isPresented: $showingDeleteConfirmation) {
-            Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) {
+        .alert(localization.t("dictionary.deleteTitle"), isPresented: $showingDeleteConfirmation) {
+            Button(localization.t("common.cancel"), role: .cancel) {}
+            Button(localization.t("dictionary.delete"), role: .destructive) {
                 if let entry = entryToDelete {
                     deleteEntry(entry)
                 }
             }
         } message: {
             if let entry = entryToDelete {
-                Text("Delete \"\(entry.pattern)\" → \"\(entry.replacement)\"?")
+                Text(localization.t("dictionary.deleteConfirm", params: ["pattern": entry.pattern, "replacement": entry.replacement]))
             }
         }
     }
@@ -614,7 +615,7 @@ struct DictionarySettingsView: View {
 
     private var headerView: some View {
         HStack {
-            Text("Personal Dictionary")
+            Text(localization.t("dictionary.title"))
                 .font(.headline)
 
             Spacer()
@@ -650,10 +651,10 @@ struct DictionarySettingsView: View {
                 .font(.system(size: 40))
                 .foregroundColor(.secondary)
 
-            Text("Login Required")
+            Text(localization.t("dictionary.loginRequired"))
                 .font(.headline)
 
-            Text("Please log in to manage your personal dictionary")
+            Text(localization.t("dictionary.loginDescription"))
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
@@ -665,7 +666,7 @@ struct DictionarySettingsView: View {
     private var loadingView: some View {
         VStack(spacing: 12) {
             ProgressView()
-            Text("Loading dictionary...")
+            Text(localization.t("dictionary.loading"))
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
@@ -678,17 +679,17 @@ struct DictionarySettingsView: View {
                 .font(.system(size: 40))
                 .foregroundColor(.secondary)
 
-            Text("No Dictionary Entries")
+            Text(localization.t("dictionary.empty"))
                 .font(.headline)
 
-            Text("Add patterns to customize how words are transcribed")
+            Text(localization.t("dictionary.emptyDescription"))
                 .font(.caption)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
 
             // Example
             VStack(alignment: .leading, spacing: 4) {
-                Text("Example:")
+                Text(localization.t("dictionary.example"))
                     .font(.caption2)
                     .foregroundColor(.secondary)
                 HStack {
@@ -728,7 +729,7 @@ struct DictionarySettingsView: View {
         VStack(spacing: 8) {
             HStack(spacing: 8) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Pattern")
+                    Text(localization.t("dictionary.pattern"))
                         .font(.caption2)
                         .foregroundColor(.secondary)
                     TextField("e.g., くろーど", text: $newPattern)
@@ -740,7 +741,7 @@ struct DictionarySettingsView: View {
                     .padding(.top, 14)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Replacement")
+                    Text(localization.t("dictionary.replacement"))
                         .font(.caption2)
                         .foregroundColor(.secondary)
                     TextField("e.g., Claude", text: $newReplacement)
@@ -768,7 +769,7 @@ struct DictionarySettingsView: View {
                         .font(.caption)
                         .foregroundColor(.red)
                     Spacer()
-                    Button("Dismiss") {
+                    Button(localization.t("dictionary.dismiss")) {
                         service.errorMessage = nil
                     }
                     .font(.caption)
@@ -783,7 +784,7 @@ struct DictionarySettingsView: View {
                 HStack {
                     Image(systemName: "exclamationmark.circle.fill")
                         .foregroundColor(.orange)
-                    Text("Dictionary limit reached (100 entries)")
+                    Text(localization.t("dictionary.limitReached"))
                         .font(.caption)
                         .foregroundColor(.orange)
                 }
