@@ -52,13 +52,24 @@ struct MenuBarView: View {
 
     // MARK: - Subviews
 
+    /// Translation key for the current app status.
+    private var statusTranslationKey: String {
+        switch appState.status {
+        case .idle: return "status.idle"
+        case .recording: return "status.recording"
+        case .processing: return "status.processing"
+        case .completed: return "status.completed"
+        case .error: return "status.error"
+        }
+    }
+
     private var statusHeader: some View {
         HStack(spacing: 8) {
             // Animated status icon
             statusIcon
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(appState.statusText)
+                Text(localization.t(statusTranslationKey))
                     .font(.headline)
 
                 if authService.isAuthenticated {
