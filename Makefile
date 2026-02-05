@@ -2,14 +2,14 @@
 # VoxType - Local Development
 # ===========================================
 
-.PHONY: help db whisper backend up down clean migrate logs
+.PHONY: help db whisper backend up down clean migrate logs dmg client-build
 
 # Load environment variables
 include .env
 export
 
 help: ## Show this help
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' Makefile | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
 
 # ===========================================
 # Database
@@ -134,3 +134,53 @@ lint: ## Run linter
 
 format: ## Format code
 	cd server && uv run ruff format .
+
+# ===========================================
+# macOS Client
+# ===========================================
+
+# Client paths
+CLIENT_DIR = client/VoxType
+CLIENT_BUILD_DIR = $(CLIENT_DIR)/build/Build/Products/Release
+CLIENT_APP = $(CLIENT_BUILD_DIR)/VoxType.app
+CLIENT_DMG_RESOURCES = $(CLIENT_DIR)/dmg-resources
+CLIENT_DIST = $(CLIENT_DIR)/dist
+
+# Version from Info.plist (or override with VERSION=x.x.x)
+VERSION ?= $(shell /usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" $(CLIENT_DIR)/VoxType/Info.plist 2>/dev/null || echo "1.0.0")
+
+client-build: ## Build macOS client app
+	@echo "Building VoxType.app (Release)..."
+	cd $(CLIENT_DIR) && xcodebuild -project VoxType.xcodeproj -scheme VoxType -configuration Release -derivedDataPath ./build clean build
+	@echo ""
+	@echo "Build completed: $(CLIENT_APP)"
+
+dmg: client-build ## Build macOS client and create DMG (VERSION=x.x.x to override)
+	@echo ""
+	@echo "Creating DMG for VoxType v$(VERSION)..."
+	@mkdir -p $(CLIENT_DMG_RESOURCES) $(CLIENT_DIST)
+	@# Create orange gradient background if not exists
+	@if [ ! -f "$(CLIENT_DMG_RESOURCES)/dmg-background.png" ]; then \
+		echo "Creating orange gradient background..."; \
+		magick -size 540x380 gradient:'#FF6B35'-'#FF8C42' $(CLIENT_DMG_RESOURCES)/dmg-background.png; \
+	fi
+	@# Remove old DMG if exists
+	@rm -f $(CLIENT_DIST)/VoxType-$(VERSION).dmg
+	@# Create DMG
+	create-dmg \
+		--volname "VoxType" \
+		--volicon "$(CLIENT_APP)/Contents/Resources/AppIcon.icns" \
+		--background "$(CLIENT_DMG_RESOURCES)/dmg-background.png" \
+		--window-pos 200 120 \
+		--window-size 540 380 \
+		--icon-size 80 \
+		--icon "VoxType.app" 140 190 \
+		--hide-extension "VoxType.app" \
+		--app-drop-link 400 190 \
+		"$(CLIENT_DIST)/VoxType-$(VERSION).dmg" \
+		"$(CLIENT_APP)"
+	@echo ""
+	@echo "==================================="
+	@echo "DMG created successfully!"
+	@echo "Location: $(CLIENT_DIST)/VoxType-$(VERSION).dmg"
+	@echo "==================================="
