@@ -1,6 +1,7 @@
 # Project specific
 .env
 .env.local
+.env.prod
 
 # Python
 __pycache__/
