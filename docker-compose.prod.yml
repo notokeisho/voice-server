@@ -44,8 +44,6 @@ services:
       - WHISPER_SERVER_URL=http://whisper:8080
       - APP_NAME=${APP_NAME:-VoxType}
       - DEBUG=${DEBUG:-false}
-    volumes:
-      - ./data:/app/data
     depends_on:
       db:
         condition: service_healthy
@@ -53,7 +51,7 @@ services:
         condition: service_started
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
       interval: 30s
       timeout: 10s
       retries: 3

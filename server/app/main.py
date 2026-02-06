@@ -43,7 +43,8 @@ app.add_middleware(
         "http://localhost:5175",  # admin-web dev server (alternate)
         "http://localhost:5176",  # admin-web dev server (alternate)
         "http://localhost:5177",  # admin-web dev server (alternate)
-        "http://localhost:3000",  # admin-web production
+        "http://localhost:3000",  # admin-web production (local)
+        "https://voxtype-admin.oshiruko.dev",  # admin-web production
     ],
     allow_credentials=True,
     allow_methods=["*"],
