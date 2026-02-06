@@ -25,4 +25,6 @@ COPY alembic.ini ./
 EXPOSE 8000
 
 # Run the application
-CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# --proxy-headers: Trust X-Forwarded-Proto header from reverse proxy
+# --forwarded-allow-ips: Allow forwarded headers from any IP (trusted internal network)
+CMD ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*"]
